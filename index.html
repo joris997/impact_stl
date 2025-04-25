@@ -159,11 +159,38 @@ We show the method in a high-fidelity simulator for a variety of scenarios and p
 </section>
 <!-- End paper abstract -->
 
+<!-- Paper abstract -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Method</h2>
+        <div class="content has-text-justified">
+          <p>
+            We present the following method for the object transportation problem:
+            <ol>
+              <li><b>Offline Planner:</b> An offline Mixed-Integer Program generates kinematically feasible trajectories satisfying a high-level STL specification. The planner resolves where, when and with whom objects should impact to fulfill this specification.</li>
+              <li><b>Online Replanner:</b> The replanner updates the trajectories based on the current state of the system. It considers the updated positions and velocities of the objects and the physical sizes of objects and robots.</li>
+              <li><b>Low-level Controller:</b> The low-level controller tracks the motion plan and controls the robots. It uses an impact-aware model-predictive control scheme to ensure that the robots follow the planned trajectories.</li>
+            </ol>
+            Note the following details:
+            <ol>
+              <li>We define a high-level STL specification for the object transportation task, for robots and objects.</li>
+              <li>We parametrize trajectories for objects as 1st order Bezier curves and robots as d'th order Bezier curves.</li>
+              <li>The offline planner uses a kinematic impact model for point masses. The online replanner considers a kinematic impact model for circular bodies</li>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End paper abstract -->
+
 
 <section class="hero is-small">
   <div class="hero-body">
-    <h2 class="title">Software-In-The-Loop Corridor Scenario</h2>
     <div class="container">
+      <h2 class="title is-3">Software-In-The-Loop Corridor Scenario</h2>
       <p>
         An intuitive example: transport a free-floating object from an initial state to a goal state (green) while avoiding obstacles (red).
         Two robots are used to transport the object by using impact interactions.
@@ -212,6 +239,61 @@ We show the method in a high-fidelity simulator for a variety of scenarios and p
     </div>
   </div>
 </section>
+
+
+
+
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3">Hardware validation</h2>
+      <p>
+        We perform the corridor scenario on the <a href="https://atmos.discower.io/" target="_blank">ATMOS platform at KTH</a>.
+        We additionally show a complex scenario with
+      </p>
+
+      <div id="results-carousel" class="carousel results-carousel">
+
+        <!-- Slide 1: Spatially robust -->
+        <div class="item">
+          <div class="columns is-vcentered">
+            <div class="column is-half">
+              <img src="static/images/lab_test_2.png" alt="Spatially robust scenario"/>
+              <h2 class="subtitle has-text-centered">
+                Spatially robust corridor travel scenario.
+              </h2>
+            </div>
+            <div class="column is-half">
+              <video autoplay controls muted loop style="width: 100%;">
+                <source src="static/videos/throw_and_catch_bestcase_4.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2: Impact robust -->
+        <div class="item">
+          <div class="columns is-vcentered">
+            <div class="column is-half">
+              <img src="static/images/pingpong_exp.png" alt="Impact robust scenario"/>
+              <h2 class="subtitle has-text-centered">
+                Spatially robust pong scenario.
+              </h2>
+            </div>
+            <div class="column is-half">
+              <video autoplay controls muted loop style="width: 100%;">
+                <source src="static/videos/throw_and_catch_worstcase_4.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
 
 
 <!-- Youtube video -->
