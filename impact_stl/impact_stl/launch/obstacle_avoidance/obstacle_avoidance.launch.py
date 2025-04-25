@@ -20,6 +20,7 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             parameters=[{'x0':9.0, 'y0':5.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
+                        {'scenario_name':'obstacle_avoidance'},
                         {'object_ns':'/pop'}]
         ),
         Node(
@@ -30,6 +31,7 @@ def generate_launch_description():
             # output='screen',
             emulate_tty=True,
             parameters=[{'x0':1.0, 'y0':7.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
+                        {'scenario_name':'obstacle_avoidance'},
                         {'object_ns':'/pop'},
                         {'enable_cbf':True}]
         ),
@@ -42,6 +44,7 @@ def generate_launch_description():
             name='snap_planner',
             output='screen',
             emulate_tty=True,
+            parameters=[{'scenario_name':'obstacle_avoidance'}]
         ),
         Node(
             package='push_stl',
@@ -50,6 +53,7 @@ def generate_launch_description():
             name='crackle_planner',
             # output='screen',
             emulate_tty=True,
+            parameters=[{'scenario_name':'obstacle_avoidance'}]
         ),
 
         # Impact detector
@@ -75,7 +79,8 @@ def generate_launch_description():
             executable='replanner',
             name='snap_replanner',
             output='screen',
-            parameters=[{'object_ns':'/pop'}]
+            parameters=[{'object_ns':'/pop'},
+                        {'scenario_name':'obstacle_avoidance'}]
         ),
         # Replanner
         Node(
@@ -84,7 +89,8 @@ def generate_launch_description():
             executable='replanner',
             name='crackle_replanner',
             # output='screen',
-            parameters=[{'object_ns':'/pop'}]
+            parameters=[{'object_ns':'/pop'},
+                        {'scenario_name':'obstacle_avoidance'}]
         ),
 
     ])

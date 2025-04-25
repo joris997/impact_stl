@@ -7,7 +7,7 @@ import numpy as np
 import time
 import os
 
-from impact_stl.helpers.read_write_plan import csv_to_plan
+from impact_stl.planner.utilities.read_write_plan import csv_to_plan
 
 from rclpy.node import Node
 from rclpy.clock import Clock
@@ -50,6 +50,7 @@ class SpacecraftCleanMPC(Node):
         # for properly timing the replanning
         self.robot_name = self.get_namespace()
         self.object_ns = self.declare_parameter('object_ns', '/pop').value
+        self.scenario_name = self.declare_parameter('scenario_name', 'catch_throw').value
 
         # get initial state from passed parameters
         self.x0 = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -123,7 +124,9 @@ class SpacecraftCleanMPC(Node):
         package_share_directory = get_package_share_directory('push_stl')
         plans_path = os.path.join(package_share_directory)
         try:
-            rvar,hvar,ids,other_names = csv_to_plan(self.object_ns,path=plans_path)
+            rvar,hvar,ids,other_names = csv_to_plan(robot_name=self.object_ns,
+                                                    scenario_name=self.scenario_name,
+                                                    path=plans_path)
             self.plan_object = VerboseBezierPlan2NumpyArray(plan_to_plan_msg(rvar,hvar,ids,other_names))
             # print some info
             self.get_logger().info(f"Number of bezier segments: {len(self.plan_object['rvar'])}")

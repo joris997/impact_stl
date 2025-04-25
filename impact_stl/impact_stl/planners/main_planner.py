@@ -18,7 +18,7 @@ from my_msgs.srv import SetPlan, SetVerbosePlan
 from px4_msgs.msg import VehicleLocalPosition
 from planner.utilities.beziers import get_derivative_control_points_gurobi
 from ament_index_python.packages import get_package_share_directory
-from impact_stl.helpers.read_write_plan import csv_to_plan
+from impact_stl.planner.utilities.read_write_plan import csv_to_plan
 from impact_stl.helpers.solve_a_b_plan import solve_a_b_plan
 
 def plan_to_plan_msg(rvars,hvars,idvars,other_names):
@@ -86,6 +86,7 @@ class MainPlanner(Node):
         self.node = node
 
         self.robot_name = self.get_namespace()
+        self.scenario_name = self.get_parameter('scenario_name','catch_throw').value
 
         # Subscribers to the state
         self.local_position_sub = self.create_subscription(
@@ -132,9 +133,9 @@ class MainPlanner(Node):
         package_share_directory = get_package_share_directory('push_stl')
         plans_path = os.path.join(package_share_directory)
 
-        self.rvars,self.hvars,self.idvars,self.other_names = csv_to_plan(self.robot_name,path=plans_path)                      
-        # self.rvars,self.hvars,self.idvars,self.other_names = csv_to_plan(self.robot_name,
-        #     path='/home/none/space_ws/src/push_stl/push_stl/push_stl/planners/plans')
+        self.rvars,self.hvars,self.idvars,self.other_names = csv_to_plan(robot_name=self.robot_name,
+                                                                         scenario_name=self.scenario_name,
+                                                                         path=plans_path)                      
 
         # right now we set the init position so we can reset back to it!
         self.init_position = self.vehicle_local_position

@@ -23,6 +23,7 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             parameters=[{'x0':0.5, 'y0':-1.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
+                        {'scenario_name':'pong'},
                         {'object_ns':'/snap'}]
     ))
     ld.add_action(Node(
@@ -33,6 +34,7 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             parameters=[{'x0':3.5, 'y0':-1.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
+                        {'scenario_name':'pong'},
                         {'object_ns':'/snap'}]
     ))
     if not SITL:
@@ -43,7 +45,8 @@ def generate_launch_description():
             name='snap_mpc',
             output='screen',
             emulate_tty=True,
-            parameters=[{'x0':1.25, 'y0':-0.75, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0}]
+            parameters=[{'x0':1.25, 'y0':-0.75, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
+                        {'scenario_name':'pong'},]
         ))
 
     # Bezier planner
@@ -54,6 +57,7 @@ def generate_launch_description():
         name='crackle_planner',
         # output='screen',
         emulate_tty=True,
+        parameters=[{'scenario_name':'pong'}]
     ))
     ld.add_action(Node(
         package='push_stl',
@@ -62,6 +66,7 @@ def generate_launch_description():
         name='pop_planner',
         # output='screen',
         emulate_tty=True,
+        parameters=[{'scenario_name':'pong'}]
     ))
 
     # Impact detector
@@ -110,7 +115,8 @@ def generate_launch_description():
         executable='replanner',
         name='crackle_replanner',
         output='screen',
-        parameters=[{'object_ns':'/snap'}]
+        parameters=[{'object_ns':'/snap'},
+                    {'scenario_name':'pong'}]
     ))
     ld.add_action(Node(
         package='push_stl',
@@ -118,7 +124,8 @@ def generate_launch_description():
         executable='replanner',
         name='pop_replanner',
         output='screen',
-        parameters=[{'object_ns':'/snap'}]
+        parameters=[{'object_ns':'/snap'},
+                    {'scenario_name':'pong'}]
     ))
    
     return ld

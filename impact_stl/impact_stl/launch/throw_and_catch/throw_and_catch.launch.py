@@ -20,6 +20,7 @@ def generate_launch_description():
             # output='screen',
             emulate_tty=True,
             parameters=[{'x0':1.0, 'y0':1.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
+                        {'scenario_name':'throw_and_catch'},
                         {'object_ns':'/pop'}]
         ),
         Node(
@@ -30,6 +31,7 @@ def generate_launch_description():
             # output='screen',
             emulate_tty=True,
             parameters=[{'x0':1.0, 'y0':9.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
+                        {'scenario_name':'throw_and_catch'},
                         {'object_ns':'/pop'}]
         ),
         # # run the velocity keeping MPC for the object (pop)?
@@ -51,6 +53,7 @@ def generate_launch_description():
             name='snap_planner',
             # output='screen',
             emulate_tty=True,
+            parameters=[{'scenario_name':'throw_and_catch'}]
         ),
         Node(
             package='push_stl',
@@ -59,6 +62,7 @@ def generate_launch_description():
             name='crackle_planner',
             # output='screen',
             emulate_tty=True,
+            parameters=[{'scenario_name':'throw_and_catch'}]
         ),
 
         # Impact detector
@@ -91,7 +95,8 @@ def generate_launch_description():
             executable='replanner',
             name='snap_replanner',
             # output='screen',
-            parameters=[{'object_ns':'/pop'}]
+            parameters=[{'object_ns':'/pop'},
+                        {'scenario_name':'throw_and_catch'}]
         ),
         # Replanner
         Node(
@@ -100,7 +105,8 @@ def generate_launch_description():
             executable='replanner',
             name='crackle_replanner',
             # output='screen',
-            parameters=[{'object_ns':'/pop'}]
+            parameters=[{'object_ns':'/pop'},
+                        {'scenario_name':'throw_and_catch'}]
         ),
 
     ])

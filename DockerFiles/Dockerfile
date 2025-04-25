@@ -1,9 +1,5 @@
 FROM nvidia/opengl:1.2-glvnd-runtime-ubuntu22.04
 
-## Arguments for selection of the PX4 software repository and their respective branch, this makes it easier to switch without needing to change the Dockerfile
-ARG PX4_SOFTWARE_REPO=https://github.com/DISCOWER/PX4-Space-Systems.git
-ARG PX4_SOFTWARE_BRANCH=master
-
 ENV user=px4space
 ENV home=/home/$user
 ENV ROS_DISTRO=humble
@@ -52,28 +48,34 @@ RUN echo "source /opt/ros/humble/setup.bash" >> $home/.bashrc
 RUN ["/bin/bash", "-c", "source $home/.bashrc"]
 
 ## Install Gazebo
-RUN pip3 install vcstool \
-    && pip3 install -U colcon-common-extensions \
-    && pip3 show vcstool | grep Location \
-    && pip3 show colcon-common-extensions | grep Location \
-    && sh -c 'echo "deb http://packages.ros.org/ros2/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros2-latest.list' \
-    && curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - \
-    && sudo apt-get update -y \
-    && sudo apt-get install -y python3-vcstool python3-colcon-common-extensions \
-    && mkdir -p $home/Gazebo/src \
-    && cd $home/Gazebo/src \
-    && curl -O https://raw.githubusercontent.com/gazebo-tooling/gazebodistro/master/collection-garden.yaml \
-    && sed -i "s|gz-sim7|pr-spacecraft-thrusters|" collection-garden.yaml \
-    && sed -i 's|https://github.com/gazebosim/gz-sim|https://github.com/DISCOWER/gz-sim.git|' collection-garden.yaml \
-    && vcs import < collection-garden.yaml \
+# RUN pip3 install vcstool \
+#     && pip3 install -U colcon-common-extensions \
+#     && pip3 show vcstool | grep Location \
+#     && pip3 show colcon-common-extensions | grep Location \
+#     && sh -c 'echo "deb http://packages.ros.org/ros2/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros2-latest.list' \
+#     && curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - \
+#     && sudo apt-get update -y \
+#     && sudo apt-get install -y python3-vcstool python3-colcon-common-extensions \
+#     && mkdir -p $home/Gazebo/src \
+#     && cd $home/Gazebo/src \
+#     && curl -O https://raw.githubusercontent.com/gazebo-tooling/gazebodistro/master/collection-garden.yaml \
+#     && sed -i "s|gz-sim7|pr-spacecraft-thrusters|" collection-garden.yaml \
+#     && sed -i 's|https://github.com/gazebosim/gz-sim|https://github.com/DISCOWER/gz-sim.git|' collection-garden.yaml \
+#     && vcs import < collection-garden.yaml \
+#     && curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
+#     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null \
+#     && sudo apt-get update \
+#     && sudo apt-get install -y \
+#     $(sort -u $(find . -iname 'packages-'$(lsb_release -cs)'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | sed '/gz\|sdf/d' | tr '\n' ' ') && \
+#     cd $home/Gazebo && \
+#     colcon build --merge-install --parallel-workers 1 && \
+#     echo "source $home/Gazebo/install/setup.bash" >> $home/.bashrc
+RUN apt-get update \
+    && apt-get install -y lsb-release curl gnupg \
     && curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null \
-    && sudo apt-get update \
-    && sudo apt-get install -y \
-    $(sort -u $(find . -iname 'packages-'$(lsb_release -cs)'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | sed '/gz\|sdf/d' | tr '\n' ' ') && \
-    cd $home/Gazebo && \
-    colcon build --merge-install --parallel-workers 1 && \
-    echo "source $home/Gazebo/install/setup.bash" >> $home/.bashrc
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null \
+    && apt-get update \
+    && apt-get install -y gz-garden
 
 
 ## Install micro-ROS
@@ -135,6 +137,12 @@ RUN mkdir -p $home/PX4 && \
 
 
 ### Specific impact_stl dependencies
+RUN mkdir -p $home/space_ws/src && \
+    cd $home/space_ws/src && \
+    git clone git@github.com:joris997/my_msgs.git && \
+    git clone git@github.com:joris997/px4-offboard.git && \
+    git clone git@github.com:joris997/impact_stl.git
+
 # downgrade numpy for compatibility reasons
 RUN pip install --upgrade numpy==1.24.0 && pip install casadi && pip install rosbags
 # install plotjuggler as real-time plotting tool and rosbag conversion

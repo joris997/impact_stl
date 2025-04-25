@@ -22,7 +22,7 @@ from ament_index_python.packages import get_package_share_directory
 
 from impact_stl.planners.main_planner import MinimalClientAsync
 from planner.utilities.beziers import get_derivative_control_points_gurobi
-from impact_stl.helpers.read_write_plan import csv_to_plan, plan_to_csv
+from impact_stl.planner.utilities.read_write_plan import csv_to_plan, plan_to_csv
 from impact_stl.helpers.solve_two_body_impact import solve_two_body_impact
 from impact_stl.helpers.plot_rvars_hvars import plot_rvars_hvars
 
@@ -35,6 +35,7 @@ class RePlanner(Node):
 
         # the object is an actual robot, so it has a namespace
         self.robot_name = self.get_namespace()
+        self.scenario_name = self.declare_parameter('scenario_name', 'catch_throw').value
         self.object_ns = self.declare_parameter('object_ns', '/pop').value
         self.gz = self.declare_parameter('gz', True).value
         print(f"object_ns: {self.object_ns}")
@@ -84,10 +85,14 @@ class RePlanner(Node):
         # get the original plan from the csv file
         package_share_directory = get_package_share_directory('push_stl')
         plans_path = os.path.join(package_share_directory)
-        self.rvars,self.hvars,self.idvars,self.other_names = csv_to_plan(self.robot_name,path=plans_path)
+        self.rvars,self.hvars,self.idvars,self.other_names = csv_to_plan(self.robot_name,
+                                                                         scenario_name=self.scenario_name,
+                                                                         path=plans_path)
         # get the plan of the object from the csv file
         try:
-            self.orvars,self.ohvars,self.oidvars,self.oother_names = csv_to_plan(self.object_ns,path=plans_path)
+            self.orvars,self.ohvars,self.oidvars,self.oother_names = csv_to_plan(self.object_ns,
+                                                                                 scenario_name=self.scenario_name,
+                                                                                 path=plans_path)
         except Exception as e:
             print(f"Could not find plan for object {self.object_ns}")
             print(f"Error: {e}")
@@ -424,6 +429,7 @@ class RePlanner(Node):
         write_other_names = [self.object_ns[1:],self.object_ns[1:]]
         plan_to_csv(write_rvars,write_hvars,write_ids,write_other_names,
                     robot_name=f"{self.robot_name}_{self.Ncalls}",
+                    scenario_name=self.scenario_name,
                     path="/home/none/space_ws/replans")
 
         self.Ncalls += 1

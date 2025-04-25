@@ -8,7 +8,7 @@ import time
 import os
 
 from planner.utilities.beziers import value_bezier, eval_t, get_derivative_control_points_gurobi
-from impact_stl.helpers.read_write_plan import csv_to_plan
+from impact_stl.planner.utilities.read_write_plan import csv_to_plan
 
 from rclpy.node import Node
 from rclpy.clock import Clock
@@ -49,6 +49,7 @@ class SpacecraftImpactMPC(Node):
         # for properly timing the replanning
         self.robot_name = self.get_namespace()
         self.object_ns = self.declare_parameter('object_ns', '/crackle').value
+        self.scenario_name = self.declare_parameter('scenario_name', 'catch_throw').value
         self.enable_cbf = self.declare_parameter('enable_cbf', False).value
         self.get_logger().info(f"robot_name: {self.robot_name}, object_ns: {self.object_ns}, enable_cbf: {self.enable_cbf}")
 
@@ -128,7 +129,9 @@ class SpacecraftImpactMPC(Node):
         plans_path = os.path.join(package_share_directory)
         try:
             self.get_logger().info(f"getting the plan for object {self.object_ns}")
-            rvar,hvar,ids,other_names = csv_to_plan(self.object_ns,path=plans_path)
+            rvar,hvar,ids,other_names = csv_to_plan(robot_name=self.object_ns,
+                                                    scenario_name=self.scenario_name,
+                                                    path=plans_path)
             self.plan_object = VerboseBezierPlan2NumpyArray(plan_to_plan_msg(rvar,hvar,ids,other_names))
             # print some info
             self.get_logger().info(f"Number of bezier segments: {len(self.plan_object['rvar'])}")
