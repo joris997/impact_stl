@@ -3,7 +3,7 @@ from SR_Impact_STL import SR_Impact_STL
 from World import World
 from utilities.beziers import eval_bezier
 
-robustness_type = "impact" # "spatial" or "impact"
+robustness_type = "spatial" # "spatial" or "impact"
 specification   = "catch_throw" # see respective specifications for the options
 
 if __name__ == "__main__":

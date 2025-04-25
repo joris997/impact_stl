@@ -11,9 +11,9 @@ The only proprietary dependency is `gurobi` which is only required for `impact_s
 
 # Installation
 ## Just the planner
-If you have a `gurobi` license and you are interested in only generating the motion plans, you can build a virtual environment using the `requirements.yaml` file in `impact_stl/planner`
+If you have a `gurobi` license and you are interested in only generating the motion plans, you can build a virtual environment using the `environment.yml` file in `impact_stl/planner`
 
-```conda env create - requirements.yaml```
+```conda env create -f environment.yml```
 
 
 ## The whole deal
