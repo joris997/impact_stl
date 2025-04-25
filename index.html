@@ -166,23 +166,15 @@ We show the method in a high-fidelity simulator for a variety of scenarios and p
       <div class="column is-four-fifths">
         <h2 class="title is-3">Method</h2>
         <div class="content has-text-justified">
-          <p>
-            We present the following method for the object transportation problem:
-            <ol>
-              <li><b>Offline Planner:</b> An offline Mixed-Integer Program generates kinematically feasible trajectories satisfying a high-level STL specification. The planner resolves where, when and with whom objects should impact to fulfill this specification.</li>
-              <li><b>Online Replanner:</b> The replanner updates the trajectories based on the current state of the system. It considers the updated positions and velocities of the objects and the physical sizes of objects and robots.</li>
-              <li><b>Low-level Controller:</b> The low-level controller tracks the motion plan and controls the robots. It uses an impact-aware model-predictive control scheme to ensure that the robots follow the planned trajectories.</li>
-            </ol>
-            <!-- now ad the beziers.png image-->
-            <img src="static/images/bezier.png" alt="Bezier curves" style="width: 100%; max-width: 600px; margin: 0 auto; display: block;">
-            <h2 class="subtitle has-text-centered">
-              We parametrize trajectories for objects as 1st order Bezier curves and robots as d'th order Bezier curves.
-            </h2>
-            <!-- Note the following details:
-            <ol>
-              <li>We define a high-level STL specification for the object transportation task, for robots and objects.</li>
-              <li>We parametrize trajectories for objects as 1st order Bezier curves and robots as d'th order Bezier curves.</li>
-              <li>The offline planner uses a kinematic impact model for point masses. The online replanner considers a kinematic impact model for circular bodies</li> -->
+          <p>We present the following method for the object transportation problem:</p>
+          <ol>
+            <li><b>Offline Planner:</b> An offline Mixed-Integer Program generates kinematically feasible trajectories satisfying a high-level STL specification. The planner resolves where, when and with whom objects should impact to fulfill this specification.</li>
+            <li><b>Online Replanner:</b> The replanner updates the trajectories based on the current state of the system. It considers the updated positions and velocities of the objects and the physical sizes of objects and robots.</li>
+            <li><b>Low-level Controller:</b> The low-level controller tracks the motion plan and controls the robots. It uses an impact-aware model-predictive control scheme to ensure that the robots follow the planned trajectories.</li>
+          </ol>
+          <img src="static/images/bezier.png" alt="Bezier curves" style="width: 100%; max-width: 600px; margin: 1.5rem auto; display: block;">
+          <p class="has-text-centered is-size-6">
+            We parametrize trajectories for objects as 1<sup>st</sup>-order Bézier curves and robots as d<sup>th</sup>-order Bézier curves.
           </p>
         </div>
       </div>
@@ -190,6 +182,7 @@ We show the method in a high-fidelity simulator for a variety of scenarios and p
   </div>
 </section>
 <!-- End paper abstract -->
+
 
 
 <section class="hero is-small">
