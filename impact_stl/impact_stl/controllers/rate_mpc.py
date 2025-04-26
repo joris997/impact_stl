@@ -131,10 +131,37 @@ class SpacecraftRateMPC():
         ocp.minimize(cost_eq)
 
         # set solver method
-        opts = {'ipopt.print_level': 1, 'print_time': 0, 'ipopt.sb': 'yes',
-                'verbose':False}
-        ocp.solver('ipopt',opts)
-        # ocp.solver('sqpmethod')
+        # # IPOPT
+        # # IPOPT:
+        ipopt_opts = {
+            'ipopt.print_level': 0,
+            'ipopt.warm_start_bound_push': 1e-4,
+            'ipopt.warm_start_bound_frac': 1e-4,
+            'ipopt.warm_start_slack_bound_frac': 1e-4,
+            'ipopt.warm_start_slack_bound_push': 1e-4,
+            'ipopt.warm_start_mult_bound_push': 1e-4,
+            'print_time': False,
+            'verbose': False,
+        }
+        ocp.solver('ipopt',ipopt_opts)
+
+        # SQP:
+        # qp_opts = {
+        #     'max_iter': 10,
+        #     'error_on_fail': False,
+        #     'print_header': False,
+        #     'print_iter': False
+        # }
+        # sqp_opts = {
+        #     'max_iter': 100,
+        #     'qpsol': 'qrqp',
+        #     'convexify_margin': 1e-5,
+        #     'print_header': False,
+        #     'print_time': False,
+        #     'print_iteration': False,
+        #     'qpsol_options': qp_opts
+        # }
+        # ocp.solver('sqpmethod',sqp_opts)
 
         # set consistent variables and parameters
         self.params['x0'] = x0

@@ -262,7 +262,7 @@ class SpacecraftImpactMPC(Node):
         impact_idx = None
         xpre = None
         xpost = None
-        tI = None
+        tI = 1e5
         weights = {'Q': None, 'Q_e': None, 'R': None}
 
         # if we haven't started the simulation, we just keep position at the setpoint
