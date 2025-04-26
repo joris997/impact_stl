@@ -22,3 +22,48 @@ To run the SITL or hardware simulations, I have provided a DockerFile in `Docker
 ```docker build -t impact_stl:latest -f DockerFiles/Dockerfile .```
 
 ```docker run -it --gpus all --network=host --ipc=host -e DISPLAY=$DISPLAY -e NVIDIA_VISIBLE_DEVICES=all -e NVIDIA_DRIVER_CAPABILITIES=all -e QT_X11_NO_MITSHM=1 -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v /dev/dri:/dev/dri -e XDG_RUNTIME_DIR=/tmp/runtime-root --runtime=nvidia -v /home/none/gits/PROJECTS/impact_stl:/home/px4space/space_ws/src/impact_stl --name impact_stl_cont impact_stl```
+
+# Running the code
+## Planner
+To run the planner, you need to activate the conda environment and run the `main.py` script. 
+The script allows you to change robustness type and scenario. See the `World.py` and `Spec.py` for details on how to change the scenarios. 
+
+In the `impact_stl` directory, run the following commands:
+
+```conda activate impact_stl```
+
+```python main.py```
+
+## Simulation
+The simulator requires several components to be running. We list them here:
+- `QGroundControl` which is the ground control station for the PX4 autopilot, allowing us to arm, disarm, and change the control mode of the vehicle.
+- `microros` which is the micro-ROS agent that allows us to communicate with the PX4 autopilot.
+- `sitl launch file` which is the launch file that starts the PX4 autopilot in software-in-the-loop (SITL) mode.
+- `scenario launch file` which is the launch file that starts the all the controllers, planners, impact detectors etc.
+- `start launch file` which sends the global signal that the simulation should start. Also records the rosbag.
+
+### QGroundControl
+In the home directory, run the following command to start QGroundControl:
+```./startQGC```
+
+### Micro-ROS
+In any directory, run the following command to start the micro-ROS agent:
+```ros2 run micro_ros_agent micro_ros_agent udp4 --port 8888```
+
+### SITL launch file
+Go to the `space_ws` directory, and build the workspace:
+```colcon build```
+
+Source the workspace:
+```source install/setup.bash```
+
+Then, run the following command to start the PX4 autopilot in SITL mode:
+```ros2 launch impact_stl sitl_obstacle_avoidance.launch.py```
+
+### Scenario launch file
+In the `impact_stl` directory, run the following command to start the scenario:
+```ros2 launch impact_stl obstacle_avoidance.launch.py```
+
+### Start launch file
+In the `impact_stl` directory, run the following command to start the simulation:
+```ros2 launch impact_stl start_scenario.launch.py```
