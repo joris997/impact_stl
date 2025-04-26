@@ -7,7 +7,7 @@ import numpy as np
 import time
 import os
 
-from impact_stl.planner.utilities.read_write_plan import csv_to_plan
+from impact_stl.helpers.read_write_plan import csv_to_plan
 
 from rclpy.node import Node
 from rclpy.clock import Clock
@@ -38,7 +38,7 @@ from impact_stl.controllers.rate_impact_mpc import SpacecraftRateImpactMPC
 from impact_stl.helpers.helpers import vector2PoseMsg, BezierCurve2NumpyArray, \
                             BezierPlan2NumpyArray, interpolate_bezier, VerboseBezierPlan2NumpyArray,\
                             Quaternion2Euler, Euler2Quaternion
-from planner.utilities.beziers import get_derivative_control_points_gurobi, value_bezier, eval_t
+from impact_stl.helpers.beziers import get_derivative_control_points_gurobi, value_bezier, eval_t
 
 
 class SpacecraftCleanMPC(Node):

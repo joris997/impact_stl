@@ -1,5 +1,5 @@
 import casadi as cs
-from planner.utilities.beziers import get_derivative_control_points_gurobi
+from impact_stl.helpers.beziers import get_derivative_control_points_gurobi
 import numpy as np
 import time
 

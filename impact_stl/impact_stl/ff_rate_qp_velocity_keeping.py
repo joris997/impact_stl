@@ -6,7 +6,7 @@ import rclpy
 import numpy as np
 import time
 
-from planner.utilities.beziers import value_bezier, eval_t
+from impact_stl.helpers.beziers import value_bezier, eval_t
 
 from rclpy.node import Node
 from rclpy.clock import Clock

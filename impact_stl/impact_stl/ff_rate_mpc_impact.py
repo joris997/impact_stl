@@ -7,8 +7,8 @@ import numpy as np
 import time
 import os
 
-from planner.utilities.beziers import value_bezier, eval_t, get_derivative_control_points_gurobi
-from impact_stl.planner.utilities.read_write_plan import csv_to_plan
+from impact_stl.helpers.beziers import value_bezier, eval_t, get_derivative_control_points_gurobi
+from impact_stl.helpers.read_write_plan import csv_to_plan
 
 from rclpy.node import Node
 from rclpy.clock import Clock
@@ -436,14 +436,14 @@ class SpacecraftImpactMPC(Node):
                 plan0 = interpolate_bezier(self.plan,t)
                 id = plan0['id']
             # self.get_logger().info(f"t: {t}")
-            self.get_logger().info(f"id: {id}") if self.enable_cbf else None
+            # self.get_logger().info(f"id: {id}") if self.enable_cbf else None
             if (id == 'pre' and tI - t <= 5) or not self.enable_cbf:
                 enable_cbf = False
                 xobj = None
+                self.get_logger().info(f"enable_cbf: {enable_cbf}") if self.enable_cbf else None
             else:
                 enable_cbf = True
                 xobj = xobj
-            self.get_logger().info(f"enable_cbf: {enable_cbf}") if self.enable_cbf else None
             x_pred, u_pred = self.mpc.solve(x0,setpoints,
                                             weights=weights,
                                             initial_guess=self.initial_guess,

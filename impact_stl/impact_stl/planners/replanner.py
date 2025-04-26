@@ -21,8 +21,8 @@ from my_msgs.msg import StampedBool
 from ament_index_python.packages import get_package_share_directory
 
 from impact_stl.planners.main_planner import MinimalClientAsync
-from planner.utilities.beziers import get_derivative_control_points_gurobi
-from impact_stl.planner.utilities.read_write_plan import csv_to_plan, plan_to_csv
+from impact_stl.helpers.beziers import get_derivative_control_points_gurobi
+from impact_stl.helpers.read_write_plan import csv_to_plan, plan_to_csv
 from impact_stl.helpers.solve_two_body_impact import solve_two_body_impact
 from impact_stl.helpers.plot_rvars_hvars import plot_rvars_hvars
 

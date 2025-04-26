@@ -14,49 +14,23 @@ setup(
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/config', '*.rviz'))),     # rviz configs
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/config', '*.xml'))),      # plotjuggler configs
 
-
+        # launch files
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/platforms', '*launch.[pxy][yma]*'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/atmos_paper', '*launch.[pxy][yma]*'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/atmos_paper_multi', '*launch.[pxy][yma]*'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/simple_push', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/throw_and_catch', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/obstacle_avoidance', '*launch.[pxy][yma]*'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/double_throw', '*launch.[pxy][yma]*'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/multi_agent_tracking', '*launch.[pxy][yma]*'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/cbf_test', '*launch.[pxy][yma]*'))),
-
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/lab_test_1', '*launch.[pxy][yma]*'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/lab_test_2', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/throw_and_catch_exp', '*launch.[pxy][yma]*'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/complex_stl', '*launch.[pxy][yma]*'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/pingpong_stl', '*launch.[pxy][yma]*'))),
+        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/pong_stl', '*launch.[pxy][yma]*'))),
 
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/simple_push', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/atmos_paper', '*.csv'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/atmos_paper_multi', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/obstacle_avoidance', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/obstacle_avoidance/worstcase', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/double_throw', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/multi_agent_tracking', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/cbf_test', '*.csv'))),
+        # data files (csv of motion plan)
+        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch/SR', '*.csv'))),
+        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/obstacle_avoidance/SR', '*.csv'))),
+        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch_exp/SR', '*.csv'))),
+        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/pong_stl/SR', '*.csv'))),
 
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/lab_test_1', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/lab_test_2', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/lab_test_2/more_space', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch_exp/best_case', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch_exp/worst_case', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/complex_stl/best_case', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/complex_stl/worst_case', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/pingpong_stl', '*.csv'))),
-
-        # 1 to 1 comparisons
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch/bestcase', '*.csv'))),     # config files
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch/worstcase', '*.csv'))), 
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/obstacle_avoidance/bestcase', '*.csv'))),
-        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/obstacle_avoidance/worstcase', '*.csv'))),
-
+        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch/IR', '*.csv'))),
+        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/obstacle_avoidance/IR', '*.csv'))),
+        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch_exp/IR', '*.csv'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -85,11 +59,6 @@ setup(
                 'odom_to_vehicle_local_position = impact_stl.helpers.odom_to_vehicle_local_position:main',
                 'odom_to_vehicle_angular_velocity = impact_stl.helpers.odom_to_vehicle_angular_velocity:main',
                 'odom_to_vehicle_attitude = impact_stl.helpers.odom_to_vehicle_attitude:main',
-
-                # tests
-                'test_replanner = impact_stl.planners.test_replanner:main',
-                'test_rate_mpc = impact_stl.controllers.test_rate_mpc:main',
-                'test_impact_mpc = impact_stl.controllers.test_impact_mpc:main',
         ],
     },
 )

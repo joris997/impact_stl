@@ -8,7 +8,7 @@ import cvxpy as cp
 import sys
 sys.path.append('..')
 import matplotlib.pyplot as plt
-# from impact_stl.planner.utilities.beziers import eval_bezier
+# from impact_stl.helpers.beziers import eval_bezier
 from utilities.beziers import eval_bezier
 import time
 

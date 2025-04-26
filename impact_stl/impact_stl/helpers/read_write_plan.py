@@ -1,7 +1,7 @@
 import numpy as np
 import csv
 import os
-from utilities.zonotopes import zonotope
+from impact_stl.helpers.zonotopes import zonotope
 
 def plan_to_csv(rvars,hvars,ids,other_names,robot_name,scenario_name='',path=''):
     assert (len(rvars) == len(hvars))

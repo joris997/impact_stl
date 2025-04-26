@@ -16,9 +16,9 @@ from my_msgs.msg import BezierCurve, BezierPlan, StampedBool
 from my_msgs.msg import VerboseBezierPlan
 from my_msgs.srv import SetPlan, SetVerbosePlan
 from px4_msgs.msg import VehicleLocalPosition
-from planner.utilities.beziers import get_derivative_control_points_gurobi
+from impact_stl.helpers.beziers import get_derivative_control_points_gurobi
 from ament_index_python.packages import get_package_share_directory
-from impact_stl.planner.utilities.read_write_plan import csv_to_plan
+from impact_stl.helpers.read_write_plan import csv_to_plan
 from impact_stl.helpers.solve_a_b_plan import solve_a_b_plan
 
 def plan_to_plan_msg(rvars,hvars,idvars,other_names):
@@ -86,7 +86,7 @@ class MainPlanner(Node):
         self.node = node
 
         self.robot_name = self.get_namespace()
-        self.scenario_name = self.get_parameter('scenario_name','catch_throw').value
+        self.scenario_name = self.declare_parameter('scenario_name','catch_throw').value
 
         # Subscribers to the state
         self.local_position_sub = self.create_subscription(

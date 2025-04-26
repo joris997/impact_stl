@@ -827,19 +827,25 @@ class IR_Impact_STL:
             robots_rsol = [np.vstack((np.mean(self.robots_rsol[r][bz],axis=2),np.zeros((1,self.robots_ncp[r])))) for bz in range(self.robots_nbzs[r])]
             robots_hsol = [np.mean(self.robots_hsol[r][bz],axis=2) for bz in range(self.robots_nbzs[r])]
             plan_to_csv(robots_rsol,robots_hsol,self.robots[r].ids,self.robots[r].other_names,
-                        self.robots[r].name,'impact_stl/planner/plans/')
+                        self.robots[r].name,
+                        scenario_name=self.world.specification,
+                        path='impact_stl/planner/plans/')
         for o in range(self.nobjects):
             objects_rsol = [np.vstack((np.array([self.objects_X0[o][bz].x.X[0:2],self.objects_Xf[o][bz].x.X[0:2]]).T,np.zeros((1,self.objects_ncp[o])))) for bz in range(self.objects_nbzs[o])]
             objects_hsol = [np.array([i*self.objects[o].dt, (i+1)*self.objects[o].dt]).reshape((1,-1)) for i in range(self.objects_nbzs[o])]
             print(f"objects_hsol: {objects_hsol}")
             plan_to_csv(objects_rsol,objects_hsol,self.objects[o].ids,self.objects[o].other_names,
-                        self.objects[o].name,'impact_stl/planner/plans/')
+                        self.objects[o].name,
+                        scenario_name=self.world.specification,
+                        path='impact_stl/planner/plans/')
         # also write the zonotopes X0[idx] and Xf[idx] to a csv file because we want to plot them
         for o in range(self.nobjects):
             X0s = [zonotope(x=self.objects_X0[o][bz].x.X.reshape((1,-1)),Gdiag=self.objects_X0[o][bz].Gdiag.X.reshape((1,-1))) for bz in range(self.objects_nbzs[o])]
             Xfs = [zonotope(x=self.objects_Xf[o][bz].x.X.reshape((1,-1)),Gdiag=self.objects_Xf[o][bz].Gdiag.X.reshape((1,-1))) for bz in range(self.objects_nbzs[o])]
             zonotopes_to_csv(X0s,Xfs,self.objects[o].ids,self.objects[o].other_names,
-                             self.objects[o].name,'impact_stl/planner/plans/')
+                             self.objects[o].name,
+                             scenario_name=self.world.specification,
+                             path='impact_stl/planner/plans/')
 
 
         # create the trajectories of the robots that shall be printed to the .csv file

@@ -17,11 +17,13 @@ If you have a `gurobi` license and you are interested in only generating the mot
 
 
 ## The whole deal
-To run the SITL or hardware simulations, I have provided a DockerFile in `DockerFiles`. This image requires approximately 55Gb of storage as it installs, among others, `ros2`, `gazebo` from source, and `px4-space-systems`.
+To run the SITL or hardware simulations, I have provided a DockerFile in `DockerFiles`. This image requires approximately 15Gb of storage as it installs, among others, `ros2`, `gazebo`, and `px4-space-systems`.
 
 ```docker build -t impact_stl:latest -f DockerFiles/Dockerfile .```
 
 ```docker run -it --gpus all --network=host --ipc=host -e DISPLAY=$DISPLAY -e NVIDIA_VISIBLE_DEVICES=all -e NVIDIA_DRIVER_CAPABILITIES=all -e QT_X11_NO_MITSHM=1 -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v /dev/dri:/dev/dri -e XDG_RUNTIME_DIR=/tmp/runtime-root --runtime=nvidia -v /home/none/gits/PROJECTS/impact_stl:/home/px4space/space_ws/src/impact_stl --name impact_stl_cont impact_stl```
+
+The last argument links your local clone of the `impact_stl` repository to the Docker container. You can change the path to your local clone of the repository.
 
 # Running the code
 ## Planner

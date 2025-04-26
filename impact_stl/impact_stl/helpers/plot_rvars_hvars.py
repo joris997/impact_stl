@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import os
 
-from planner.utilities.beziers import eval_bezier, get_derivative_control_points_gurobi
+from impact_stl.helpers.beziers import eval_bezier, get_derivative_control_points_gurobi
 
 def plot_rvars_hvars(rvars,hvars,path="",fn="plot_rvars_hvars.png"):
     # input is just an array of rvars and an 

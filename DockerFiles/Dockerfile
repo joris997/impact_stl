@@ -108,6 +108,16 @@ ENV LD_LIBRARY_PATH=$home/qt/6.6.3/gcc_64/lib:$LD_LIBRARY_PATH
 ENV QT_PLUGIN_PATH=$home/qt/6.6.3/gcc_64/lib/pkgconfig:$PKG_CONFIG_PATH
 
 
+
+### PX4-Space-Systems
+RUN mkdir -p $home/PX4 && cd $home/PX4 && \
+    git clone https://github.com/DISCOWER/PX4-Space-Systems.git --recursive && \
+    echo "export PX4_SPACE_SYSTEMS_DIR='$home/PX4/PX4-Space-Systems'" >> $home/.bashrc && \
+    cd $home/PX4/PX4-Space-Systems && chmod +x Tools/setup/ubuntu.sh && ./Tools/setup/ubuntu.sh -y && \
+    pip3 install -r Tools/setup/requirements.txt && \
+    make px4_sitl
+
+
 # install plotjuggler as real-time plotting tool and rosbag conversion
 RUN apt-get update -y && apt-get install -y ros-humble-plotjuggler-ros
 # gazebo-ros-bridge
@@ -143,13 +153,6 @@ RUN mkdir -p $home/PX4/ros2_ws/src && \
     . /opt/ros/humble/setup.sh && colcon build --symlink-install && \
     echo "source $home/PX4/ros2_ws/install/setup.bash" >> $home/.bashrc
 
-### PX4-Space-Systems
-RUN cd $home/PX4 && \
-    git clone https://github.com/DISCOWER/PX4-Space-Systems.git --recursive && \
-    echo "export PX4_SPACE_SYSTEMS_DIR='$home/PX4/PX4-Space-Systems'" >> $home/.bashrc && \
-    cd $home/PX4/PX4-Space-Systems && ./Tools/setup/ubuntu.sh -y && \
-    pip3 install -r Tools/setup.requirements.txt && \
-    make px4_sitl
 
 WORKDIR $home
 

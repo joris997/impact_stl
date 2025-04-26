@@ -2,7 +2,7 @@
 import numpy as np
 
 from rclpy.clock import Clock
-from planner.utilities.beziers import value_bezier, eval_t
+from impact_stl.helpers.beziers import value_bezier, eval_t
 from geometry_msgs.msg import PoseStamped
 
 
