@@ -28,7 +28,7 @@ from my_msgs.srv import SetPlan, SetVerbosePlan
 from my_msgs.msg import StampedBool
 
 from impact_stl.models.spacecraft_rate_model import SpacecraftRateModel
-# from push_stl.controller.rate_mpc import SpacecraftRateMPC
+# from impact_stl.controller.rate_mpc import SpacecraftRateMPC
 from impact_stl.controllers.rate_mpc import SpacecraftRateMPC
 from impact_stl.helpers.helpers import vector2PoseMsg, BezierCurve2NumpyArray, \
                             BezierPlan2NumpyArray, interpolate_bezier, VerboseBezierPlan2NumpyArray
@@ -85,13 +85,13 @@ class SpacecraftMPC(Node):
         # Bezier planner stuff
         self.execute_plan_sub = self.create_subscription(
             StampedBool,
-            'push_stl/execute_plan',
+            'impact_stl/execute_plan',
             self.execute_plan_callback,
             RELIABLE_QOS)
         
         self.control_mode_sub = self.create_subscription(
             StampedBool,
-            'push_stl/control_mode',
+            'impact_stl/control_mode',
             self.control_mode_callback,
             RELIABLE_QOS)
         
@@ -110,9 +110,9 @@ class SpacecraftMPC(Node):
 
         self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, 'fmu/in/offboard_control_mode', NORMAL_QOS)
         self.publisher_rates_setpoint = self.create_publisher(VehicleRatesSetpoint, 'fmu/in/vehicle_rates_setpoint', NORMAL_QOS)
-        self.predicted_path_pub = self.create_publisher(Path, 'push_stl/predicted_path', 10)
-        self.reference_path_pub = self.create_publisher(Path, "push_stl/reference_path", 10)
-        self.publisher_recompute_local_plan = self.create_publisher(StampedBool, 'push_stl/recompute_local_plan', RELIABLE_QOS)
+        self.predicted_path_pub = self.create_publisher(Path, 'impact_stl/predicted_path', 10)
+        self.reference_path_pub = self.create_publisher(Path, "impact_stl/reference_path", 10)
+        self.publisher_recompute_local_plan = self.create_publisher(StampedBool, 'impact_stl/recompute_local_plan', RELIABLE_QOS)
         timer_period = 0.05  # seconds
         self.timer = self.create_timer(timer_period, self.cmdloop_callback)
 

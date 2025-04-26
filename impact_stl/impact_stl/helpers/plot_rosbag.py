@@ -24,7 +24,7 @@ add_types = {}
 # Directory with the custom message definitions. Assumes the ros WS is in the
 # home directory
 # message_dir = '/home/px4space/PX4/ros2_ws/src/px4_msgs/msg/'
-message_dir = '/home/none/PX4/ros2_ws/src/px4_msgs/msg/'
+message_dir = '/home/px4space/PX4/ros2_ws/src/px4_msgs/msg/'
 
 # All custom message files have to be specified here
 custom_msgs = ['VehicleAngularVelocity.msg',
@@ -44,7 +44,7 @@ typestore.register(add_types)
 # Path to the directory with the rosbag. Not the rosbag itself
 # due to the way ros2 records bags now.
 # file ='/home/px4space/space_ws/rosbag_1'
-file = '/home/none/space_ws/rosbag2_2025_01_15-18_52_46'
+file = '/home/px4space/space_ws/rosbag2_2025_01_15-18_52_46'
 
 # robot_names = ['snap', 'crackle']
 robot_names = ['snap', 'crackle', 'pop']
@@ -139,13 +139,13 @@ with Reader(file) as reader:
                 robot_states[robot_name]['ddy_gz'].append(msg.ay)
                 robot_states[robot_name]['ddz_gz'].append(msg.az)
 
-            if f'{robot_name}/push_stl/predicted_path' in connection.topic:
+            if f'{robot_name}/impact_stl/predicted_path' in connection.topic:
                 msg = typestore.deserialize_cdr(rawdata, connection.msgtype)
                 robot_states[robot_name]['t_path'].append(msg.header.stamp.sec)
                 robot_states[robot_name]['pred_path'].append(np.array([msg.poses[0].pose.position.x,
                                                                     msg.poses[0].pose.position.y,
                                                                     msg.poses[0].pose.position.z]))
-            if f'{robot_name}/push_stl/reference_path' in connection.topic:
+            if f'{robot_name}/impact_stl/reference_path' in connection.topic:
                 msg = typestore.deserialize_cdr(rawdata, connection.msgtype)
                 robot_states[robot_name]['ref_path'].append(np.array([msg.poses[0].pose.position.x,
                                                                     msg.poses[0].pose.position.y,

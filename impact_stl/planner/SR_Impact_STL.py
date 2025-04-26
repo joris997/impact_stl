@@ -49,7 +49,7 @@ class SR_Impact_STL:
         self.dh_ub = 1e3
 
     def construct(self):
-        self.prog = gp.Model("Push_STL")
+        self.prog = gp.Model("impact_stl")
         self.prog.setParam(gp.GRB.Param.OutputFlag, 1)
 
         ######################

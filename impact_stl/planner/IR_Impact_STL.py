@@ -49,7 +49,7 @@ class IR_Impact_STL:
         self.spec = spec
 
     def construct(self):
-        self.prog = gp.Model("Push_STL")
+        self.prog = gp.Model("impact_stl")
         # https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html
         self.prog.setParam(gp.GRB.Param.OutputFlag, 1)
         # self.prog.setParam(gp.GRB.Param.MIPGap, 1e1)

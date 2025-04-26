@@ -17,8 +17,8 @@ class StartScenario(Node):
     def __init__(self):
         super().__init__('scenario_publisher')
         print(f"begin construction of scenario node")       
-        self.publisher_compute_plan = self.create_publisher(StampedBool, 'push_stl/compute_plan', RELIABLE_QOS)
-        self.publisher_execute_plan = self.create_publisher(StampedBool, 'push_stl/execute_plan', RELIABLE_QOS)
+        self.publisher_compute_plan = self.create_publisher(StampedBool, 'impact_stl/compute_plan', RELIABLE_QOS)
+        self.publisher_execute_plan = self.create_publisher(StampedBool, 'impact_stl/execute_plan', RELIABLE_QOS)
 
         # publish that we should start the computation of the motion plan
         msg = StampedBool()

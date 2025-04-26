@@ -32,13 +32,13 @@ robots = ["snap","crackle","pop"]
 # csv_path = str(Path.home()) + "/space_ws/rosbags/lab_test_1/rosbag2_plotjuggler.csv"
 # csv_path = str(Path.home()) + "/space_ws/rosbags/obstacle_avoidance/best_case/rosbag2_plotjuggler.csv"
 # csv_path = str(Path.home()) + "/space_ws/rosbags/throw_and_catch/best_case/rosbag2_plotjuggler.csv"
-# csv_path = "/home/none/space_ws/rosbags/lab_test_2/rosbag2_plotjugger.csv"
+# csv_path = "/home/px4space/space_ws/rosbags/lab_test_2/rosbag2_plotjugger.csv"
 
-# csv_path = "/home/none/space_ws/rosbags/pingpong/rosbag2_2025_01_30-18_47_57/rosbag2_plotjuggler.csv"
-csv_path = "/home/none/space_ws/rosbags/pingpong/rosbag2_2025_01_30-19_06_41/rosbag2_plotjuggler.csv"
-# csv_path = "/home/none/space_ws/rosbags/pingpong/rosbag2_2025_01_30-19_23_11/rosbag2_plotjuggler.csv"
+# csv_path = "/home/px4space/space_ws/rosbags/pingpong/rosbag2_2025_01_30-18_47_57/rosbag2_plotjuggler.csv"
+csv_path = "/home/px4space/space_ws/rosbags/pingpong/rosbag2_2025_01_30-19_06_41/rosbag2_plotjuggler.csv"
+# csv_path = "/home/px4space/space_ws/rosbags/pingpong/rosbag2_2025_01_30-19_23_11/rosbag2_plotjuggler.csv"
 
-csv_path = "/home/none/space_ws/rosbags/obstacle_avoidance/worst_case/rosbag2_plotjuggler.csv"
+csv_path = "/home/px4space/space_ws/rosbags/obstacle_avoidance/worst_case/rosbag2_plotjuggler.csv"
 csv2dict = {}
 for robot in robots:
     csv2dict[robot] = CSV2Dict(csv_path, name=robot, tmax=60)
@@ -135,6 +135,6 @@ for robot in robots:
 
     fig.tight_layout()
 
-plt.savefig("/home/none/space_ws/src/push_stl/push_stl/results/plot.png")
-plt.savefig("/home/none/space_ws/src/push_stl/push_stl/results/plot.svg")
+plt.savefig("/home/px4space/space_ws/src/impact_stl/impact_stl/results/plot.png")
+plt.savefig("/home/px4space/space_ws/src/impact_stl/impact_stl/results/plot.svg")
 # plt.show()

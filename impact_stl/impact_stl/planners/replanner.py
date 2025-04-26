@@ -78,12 +78,12 @@ class RePlanner(Node):
         # replan subscriber
         self.replan_sub = self.create_subscription(
             StampedBool,
-            'push_stl/recompute_local_plan',
+            'impact_stl/recompute_local_plan',
             self.recompute_local_plan_callback,
             RELIABLE_QOS)
         
         # get the original plan from the csv file
-        package_share_directory = get_package_share_directory('push_stl')
+        package_share_directory = get_package_share_directory('impact_stl')
         plans_path = os.path.join(package_share_directory)
         self.rvars,self.hvars,self.idvars,self.other_names = csv_to_plan(self.robot_name,
                                                                          scenario_name=self.scenario_name,
@@ -101,7 +101,7 @@ class RePlanner(Node):
         self.dhvars = [get_derivative_control_points_gurobi(hvar) for hvar in self.hvars]
         
         # From the .sdf file:
-        # /home/none/PX4/PX4-Space-Systems/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/2d_spacecraft/2d_spacecraft.sdf
+        # /home/px4space/PX4/PX4-Space-Systems/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/2d_spacecraft/2d_spacecraft.sdf
         self.robot_radius = 0.20
         self.robot_mass = 16.8
         self.object_radius = 0.20
@@ -419,8 +419,8 @@ class RePlanner(Node):
 
         # plot it (this takes a bunch of time! definately remove this before experiments)
         name = self.robot_name[1:]
-        # plot_rvars_hvars(self.rvars,self.hvars,"/home/none/space_ws/replans",f"{name}_pre.png")
-        # plot_rvars_hvars(self.re_rvars,self.re_hvars,"/home/none/space_ws/replans",f"{name}_{self.Ncalls}_post.png")
+        # plot_rvars_hvars(self.rvars,self.hvars,"/home/px4space/space_ws/replans",f"{name}_pre.png")
+        # plot_rvars_hvars(self.re_rvars,self.re_hvars,"/home/px4space/space_ws/replans",f"{name}_{self.Ncalls}_post.png")
 
         # write it (this takes little time and is required for plotting afterwards)
         write_rvars = [rvars[0],rvars[1]]
@@ -430,7 +430,7 @@ class RePlanner(Node):
         plan_to_csv(write_rvars,write_hvars,write_ids,write_other_names,
                     robot_name=f"{self.robot_name}_{self.Ncalls}",
                     scenario_name=self.scenario_name,
-                    path="/home/none/space_ws/replans")
+                    path="/home/px4space/space_ws/replans")
 
         self.Ncalls += 1
         self.get_logger().info(f"The whole ordeal took {time.time()-t_start} seconds")

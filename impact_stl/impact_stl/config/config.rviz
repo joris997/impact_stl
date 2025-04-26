@@ -141,7 +141,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /snap/push_stl/predicted_path
+        Value: /snap/impact_stl/predicted_path
       Value: true
     - Class: rviz_default_plugins/InteractiveMarkers
       Enable Transparency: true
@@ -178,7 +178,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /snap/push_stl/reference_path
+        Value: /snap/impact_stl/reference_path
       Value: true
     - Class: rviz_default_plugins/Marker
       Enabled: true
@@ -280,7 +280,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /crackle/push_stl/predicted_path
+        Value: /crackle/impact_stl/predicted_path
       Value: true
     - Class: rviz_default_plugins/InteractiveMarkers
       Enable Transparency: true
@@ -317,7 +317,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /crackle/push_stl/reference_path
+        Value: /crackle/impact_stl/reference_path
       Value: true
     - Class: rviz_default_plugins/Marker
       Enabled: true
@@ -419,7 +419,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /pop/push_stl/predicted_path
+        Value: /pop/impact_stl/predicted_path
       Value: true
     - Class: rviz_default_plugins/InteractiveMarkers
       Enable Transparency: true
@@ -456,7 +456,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /pop/push_stl/reference_path
+        Value: /pop/impact_stl/reference_path
       Value: true
     - Class: rviz_default_plugins/Marker
       Enabled: true
@@ -497,7 +497,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /snap/push_stl/entire_path
+        Value: /snap/impact_stl/entire_path
       Value: true
     - Alpha: 50
       Buffer Length: 1
@@ -525,7 +525,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /crackle/push_stl/entire_path
+        Value: /crackle/impact_stl/entire_path
       Value: true
     - Alpha: 50
       Buffer Length: 1
@@ -553,7 +553,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /pop/push_stl/entire_path
+        Value: /pop/impact_stl/entire_path
       Value: true
   Enabled: true
   Global Options:

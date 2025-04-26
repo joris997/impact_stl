@@ -13,7 +13,7 @@ def generate_launch_description():
     return LaunchDescription([
         # MPC controller
         Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='snap',
             executable='ff_rate_mpc_impact', # spacecraft_mpc, spacecraft_impact_mpc
             name='snap_mpc',
@@ -24,7 +24,7 @@ def generate_launch_description():
                         {'object_ns':'/pop'}]
         ),
         Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='crackle',
             executable='ff_rate_mpc_impact', # spacecraft_mpc, spacecraft_impact_mpc
             name='crackle_mpc',
@@ -36,7 +36,7 @@ def generate_launch_description():
         ),
         # # run the velocity keeping MPC for the object (pop)?
         # Node(
-        #     package='push_stl',
+        #     package='impact_stl',
         #     namespace='pop',
         #     executable='ff_rate_mpc_velocity_keeping', # spacecraft_mpc, spacecraft_impact_mpc
         #     name='pop_mpc',
@@ -47,7 +47,7 @@ def generate_launch_description():
 
         # Bezier planner
         Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='snap',
             executable='main_planner',
             name='snap_planner',
@@ -56,7 +56,7 @@ def generate_launch_description():
             parameters=[{'scenario_name':'throw_and_catch'}]
         ),
         Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='crackle',
             executable='main_planner',
             name='crackle_planner',
@@ -67,21 +67,21 @@ def generate_launch_description():
 
         # Impact detector
         Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='snap',
             executable='impact_detector',
             name='snap_impact_detector',
             parameters=[{'threshold': 0.75}]
         ),
         Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='crackle',
             executable='impact_detector',
             name='crackle_impact_detector',
             parameters=[{'threshold': 0.75}]
         ),
         Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='pop',
             executable='impact_detector',
             name='pop_impact_detector',
@@ -90,7 +90,7 @@ def generate_launch_description():
 
         # Replanner
         Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='snap',
             executable='replanner',
             name='snap_replanner',
@@ -100,7 +100,7 @@ def generate_launch_description():
         ),
         # Replanner
         Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='crackle',
             executable='replanner',
             name='crackle_replanner',

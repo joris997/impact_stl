@@ -29,21 +29,21 @@ def generate_launch_description():
         # .../fmu/out/vehicle_local_position to .../fmu/out/vehicle_local_position_gz
         # or vice-versa. Keep care of the namespace and robot_prefix parameters!!!
         Node(
-            package='push_stl',
+            package='impact_stl',
             executable='odom_to_vehicle_local_position',
             namespace='snap',
             output='screen',
             parameters=[{'robot_prefix': '/model/spacecraft_2d_0'}]
         ),
         Node(
-            package='push_stl',
+            package='impact_stl',
             executable='odom_to_vehicle_angular_velocity',
             namespace='snap',
             output='screen',
             parameters=[{'robot_prefix': '/model/spacecraft_2d_0'}]
         ),
         Node(
-            package='push_stl',
+            package='impact_stl',
             executable='odom_to_vehicle_attitude',
             namespace='snap',
             output='screen',
@@ -51,21 +51,21 @@ def generate_launch_description():
         ),
 
         Node(
-            package='push_stl',
+            package='impact_stl',
             executable='odom_to_vehicle_local_position',
             namespace='crackle',
             output='screen',
             parameters=[{'robot_prefix': '/model/spacecraft_2d_1'}]
         ),
         Node(
-            package='push_stl',
+            package='impact_stl',
             executable='odom_to_vehicle_angular_velocity',
             namespace='crackle',
             output='screen',
             parameters=[{'robot_prefix': '/model/spacecraft_2d_1'}]
         ),
         Node(
-            package='push_stl',
+            package='impact_stl',
             executable='odom_to_vehicle_attitude',
             namespace='crackle',
             output='screen',

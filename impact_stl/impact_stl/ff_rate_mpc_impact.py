@@ -33,7 +33,7 @@ from ament_index_python.packages import get_package_share_directory
 
 from impact_stl.models.spacecraft_rate_model import SpacecraftRateModel
 from impact_stl.planners.main_planner import plan_to_plan_msg
-# from push_stl.controller.rate_mpc import SpacecraftRateMPC
+# from impact_stl.controller.rate_mpc import SpacecraftRateMPC
 from impact_stl.controllers.rate_mpc import SpacecraftRateMPC
 from impact_stl.controllers.rate_impact_mpc import SpacecraftRateImpactMPC
 from impact_stl.helpers.helpers import vector2PoseMsg, BezierCurve2NumpyArray, \
@@ -95,14 +95,14 @@ class SpacecraftImpactMPC(Node):
         # Bezier planner stuff
         self.execute_plan_sub = self.create_subscription(
             StampedBool,
-            'push_stl/execute_plan',
+            'impact_stl/execute_plan',
             self.execute_plan_callback,
             RELIABLE_QOS)
         
         # Impact detector
         self.impact_detected_sub = self.create_subscription(
             StampedBool,
-            'push_stl/impact_detected',
+            'impact_stl/impact_detected',
             self.impact_detected_callback,
             RELIABLE_QOS)
         self.impacted = False
@@ -125,7 +125,7 @@ class SpacecraftImpactMPC(Node):
         
         # get the plan of the object from the csv file
         # this plan also never changes, so we can load it and use it forever :)
-        package_share_directory = get_package_share_directory('push_stl')
+        package_share_directory = get_package_share_directory('impact_stl')
         plans_path = os.path.join(package_share_directory)
         try:
             self.get_logger().info(f"getting the plan for object {self.object_ns}")
@@ -152,10 +152,10 @@ class SpacecraftImpactMPC(Node):
 
         self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, 'fmu/in/offboard_control_mode', NORMAL_QOS)
         self.publisher_rates_setpoint = self.create_publisher(VehicleRatesSetpoint, 'fmu/in/vehicle_rates_setpoint', NORMAL_QOS)
-        self.predicted_path_pub = self.create_publisher(Path, 'push_stl/predicted_path', 10)
-        self.reference_path_pub = self.create_publisher(Path, "push_stl/reference_path", 10)
-        self.entire_path_pub = self.create_publisher(Path, "push_stl/entire_path", 10)
-        self.publisher_recompute_local_plan = self.create_publisher(StampedBool, 'push_stl/recompute_local_plan', RELIABLE_QOS)
+        self.predicted_path_pub = self.create_publisher(Path, 'impact_stl/predicted_path', 10)
+        self.reference_path_pub = self.create_publisher(Path, "impact_stl/reference_path", 10)
+        self.entire_path_pub = self.create_publisher(Path, "impact_stl/entire_path", 10)
+        self.publisher_recompute_local_plan = self.create_publisher(StampedBool, 'impact_stl/recompute_local_plan', RELIABLE_QOS)
         self.timer_period = 0.05  # seconds
         self.timer = self.create_timer(self.timer_period, self.cmdloop_callback)
 

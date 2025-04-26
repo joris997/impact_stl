@@ -19,21 +19,21 @@ def generate_launch_description():
     # run the px4_1.launch.py script twice
     lf_1 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [get_package_share_directory('push_stl'), '/px4.launch.py']),
+            [get_package_share_directory('impact_stl'), '/px4.launch.py']),
 
         launch_arguments={'id':'0', 'pose':'-5,9,0', 'name':'snap', 'delay':'0', 'headless':'0'}.items()
     )
 
     lf_2 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [get_package_share_directory('push_stl'), '/px4.launch.py']),
+            [get_package_share_directory('impact_stl'), '/px4.launch.py']),
 
         launch_arguments={'id':'1', 'pose':'-7,1,0', 'name':'crackle', 'delay':'5', 'headless':'0'}.items()
     )
 
     lf_3 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [get_package_share_directory('push_stl'), '/px4.launch.py']),
+            [get_package_share_directory('impact_stl'), '/px4.launch.py']),
 
         launch_arguments={'id':'2', 'pose':'-5,5.5,0', 'name':'pop', 'delay':'10', 'headless':'0'}.items()
     )
@@ -69,7 +69,7 @@ def generate_launch_description():
             package='rviz2',
             executable='rviz2',
             name='rviz2',
-            arguments=['-d', [os.path.join(get_package_share_directory('push_stl'), 'config.rviz')]]
+            arguments=['-d', [os.path.join(get_package_share_directory('impact_stl'), 'config.rviz')]]
     ))
     # Plotjuggler from the juggler_2.xml file (2 spacecrafts)
     ld.add_action(Node(
@@ -77,7 +77,7 @@ def generate_launch_description():
             namespace='snap',
             executable='plotjuggler',
             name='plotjuggler',
-            arguments=['-l', os.path.join(get_package_share_directory('push_stl'), 'juggler_sitl_3.xml')]
+            arguments=['-l', os.path.join(get_package_share_directory('impact_stl'), 'juggler_sitl_3.xml')]
     ))
 
     # Launch a Gazebo to ROS bridge such that we can use the ground truth
@@ -100,7 +100,7 @@ def generate_launch_description():
     # or vice-versa. Keep care of the namespace and topic_name parameters!!!
     # snap
     ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             executable='odom_to_vehicle_local_position',
             namespace='snap',
             output='screen',
@@ -108,7 +108,7 @@ def generate_launch_description():
     ))
     # crackle
     ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             executable='odom_to_vehicle_local_position',
             namespace='crackle',
             output='screen',
@@ -116,7 +116,7 @@ def generate_launch_description():
     ))
     # pop
     ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             executable='odom_to_vehicle_local_position',
             namespace='pop',
             output='screen',

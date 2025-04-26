@@ -2,7 +2,7 @@ import rclpy
 import time
 from rclpy.node import Node
 
-from push_stl.push_stl.ff_rate_mpc_impact import SpacecraftRateMPC
+from impact_stl.impact_stl.ff_rate_mpc_impact import SpacecraftRateMPC
 import numpy as np
 from impact_stl.models.spacecraft_rate_model import SpacecraftRateModel
 

@@ -16,11 +16,11 @@ def generate_launch_description():
         topics_to_record.append(f'/{robot}/fmu/out/vehicle_local_position')
         topics_to_record.append(f'/{robot}/odom')
         # reference from the mpc computation
-        topics_to_record.append(f'/{robot}/push_stl/entire_path')
-        topics_to_record.append(f'/{robot}/push_stl/reference_path')
-        topics_to_record.append(f'/{robot}/push_stl/predicted_path')
+        topics_to_record.append(f'/{robot}/impact_stl/entire_path')
+        topics_to_record.append(f'/{robot}/impact_stl/reference_path')
+        topics_to_record.append(f'/{robot}/impact_stl/predicted_path')
         # # impact detector
-        # topics_to_record.append(f'/{robot}/push_stl/impact')
+        # topics_to_record.append(f'/{robot}/impact_stl/impact')
         #gazebo ground truth topics
         topics_to_record.append(f'/{robot}/fmu/out/vehicle_angular_velocity_gz')
         topics_to_record.append(f'/{robot}/fmu/out/vehicle_attitude_gz')
@@ -33,7 +33,7 @@ def generate_launch_description():
     ld = LaunchDescription()
     for i,robot_name in enumerate(robots):
         ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             namespace=robot_name,
             executable='scenario', 
             name=f'scenario_{i}',

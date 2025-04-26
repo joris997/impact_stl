@@ -107,6 +107,20 @@ ENV PATH=$home/qt/6.6.3/gcc_64/bin:$PATH
 ENV LD_LIBRARY_PATH=$home/qt/6.6.3/gcc_64/lib:$LD_LIBRARY_PATH
 ENV QT_PLUGIN_PATH=$home/qt/6.6.3/gcc_64/lib/pkgconfig:$PKG_CONFIG_PATH
 
+
+# install plotjuggler as real-time plotting tool and rosbag conversion
+RUN apt-get update -y && apt-get install -y ros-humble-plotjuggler-ros
+# gazebo-ros-bridge
+RUN sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list' && \
+    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add - && \
+    apt-get update && apt install -y ros-humble-ros-gzgarden
+# install texlive for plotting
+# RUN apt-get install -y texlive-full
+# RUN curl -sSL https://install.python-poetry.org | python3 -
+# planning dependencies
+RUN sudo apt-get install -y ffmpeg
+
+
 USER px4space
 
 RUN sudo chown -R px4space:px4space $home
@@ -119,7 +133,7 @@ RUN mkdir -p $home/QGroundControl && \
     cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug && \
     cmake --build build --config Debug && \
     pwd && \
-    cp ./build/QGroundControl $home/QGroundControlApp
+    cp ./build/QGroundControl $home/startQGC
 
 ### PX4 messages compile
 RUN mkdir -p $home/PX4/ros2_ws/src && \
@@ -129,36 +143,30 @@ RUN mkdir -p $home/PX4/ros2_ws/src && \
     . /opt/ros/humble/setup.sh && colcon build --symlink-install && \
     echo "source $home/PX4/ros2_ws/install/setup.bash" >> $home/.bashrc
 
+### PX4-Space-Systems
+RUN cd $home/PX4 && \
+    git clone https://github.com/DISCOWER/PX4-Space-Systems.git --recursive && \
+    echo "export PX4_SPACE_SYSTEMS_DIR='$home/PX4/PX4-Space-Systems'" >> $home/.bashrc && \
+    cd $home/PX4/PX4-Space-Systems && ./Tools/setup/ubuntu.sh -y && \
+    pip3 install -r Tools/setup.requirements.txt && \
+    make px4_sitl
+
 WORKDIR $home
 
 ### PX4 simulation software compile
 RUN mkdir -p $home/PX4 && \
     pip3 install --user symforce
 
+RUN mkdir -p $home/space_ws/replans
 
 ### Specific impact_stl dependencies
 RUN mkdir -p $home/space_ws/src && \
     cd $home/space_ws/src && \
-    git clone git@github.com:joris997/my_msgs.git && \
-    git clone git@github.com:joris997/px4-offboard.git && \
-    git clone git@github.com:joris997/impact_stl.git
-
+    git clone https://github.com/joris997/my_msgs.git && \
+    git clone https://github.com/joris997/px4-offboard.git
+    
 # downgrade numpy for compatibility reasons
 RUN pip install --upgrade numpy==1.24.0 && pip install casadi && pip install rosbags
-# install plotjuggler as real-time plotting tool and rosbag conversion
-RUN sudo apt install ros-humble-plotjuggler-ros
-# gazebo-ros-bridge
-RUN sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list' && \
-    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add - && \
-    sudo apt-get update && \
-    sudo apt install ros-humble-ros-gzgarden
-# install texlive for plotting
-RUN sudo apt-get install -y texlive-full
-RUN curl -sSL https://install.python-poetry.org | python3 -
-RUN mkdir -p $home/gits && cd $home/gits && git clone git@github.com:DISCOWER/plotting_tools.git && \
-    cd plotting_tools && poetry install
-# planning dependencies
-RUN sudo apt-get install -y ffmpeg
 
 
 ### Set runtime directory environment variable

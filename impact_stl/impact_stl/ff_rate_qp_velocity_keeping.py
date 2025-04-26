@@ -28,7 +28,7 @@ from my_msgs.srv import SetPlan, SetVerbosePlan
 from my_msgs.msg import StampedBool
 
 from impact_stl.models.spacecraft_rate_model import SpacecraftRateModel
-# from push_stl.controller.rate_mpc import SpacecraftRateMPC
+# from impact_stl.controller.rate_mpc import SpacecraftRateMPC
 from impact_stl.controllers.rate_clf_qp import SpacecraftRateQP
 from impact_stl.helpers.helpers import vector2PoseMsg, BezierCurve2NumpyArray, \
                             BezierPlan2NumpyArray, interpolate_bezier, VerboseBezierPlan2NumpyArray
@@ -68,7 +68,7 @@ class SpacecraftVelocityKeepingMPC(Node):
         # Impact detector
         self.impact_detected_sub = self.create_subscription(
             StampedBool,
-            'push_stl/impact_detected',
+            'impact_stl/impact_detected',
             self.impact_detected_callback,
             RELIABLE_QOS)
         self.impacted = False

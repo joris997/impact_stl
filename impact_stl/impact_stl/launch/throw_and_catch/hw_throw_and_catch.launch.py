@@ -41,7 +41,7 @@ def generate_launch_description():
             package='rviz2',
             executable='rviz2',
             name='rviz2',
-            arguments=['-d', [os.path.join(get_package_share_directory('push_stl'), 'config.rviz')]]
+            arguments=['-d', [os.path.join(get_package_share_directory('impact_stl'), 'config.rviz')]]
     ))
     # Plotjuggler from the juggler_2.xml file (2 spacecrafts)
     ld.add_action(Node(
@@ -49,7 +49,7 @@ def generate_launch_description():
             namespace='snap',
             executable='plotjuggler',
             name='plotjuggler',
-            arguments=['-l', os.path.join(get_package_share_directory('push_stl'), 'juggler_sitl_3.xml')]
+            arguments=['-l', os.path.join(get_package_share_directory('impact_stl'), 'juggler_sitl_3.xml')]
     ))
 
     # Launch the gz to px4 converters that take the Odometry message
@@ -58,7 +58,7 @@ def generate_launch_description():
     # or vice-versa. Keep care of the namespace and robot_prefix parameters!!!
     # snap
     ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             executable='odom_to_vehicle_local_position',
             namespace='snap',
             output='screen',
@@ -66,7 +66,7 @@ def generate_launch_description():
     ))
     # crackle
     ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             executable='odom_to_vehicle_local_position',
             namespace='crackle',
             output='screen',
@@ -74,7 +74,7 @@ def generate_launch_description():
     ))
     # pop
     ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             executable='odom_to_vehicle_local_position',
             namespace='pop',
             output='screen',

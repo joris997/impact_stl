@@ -30,7 +30,7 @@ class ImpactDetector(Node):
                 self.vehicle_local_position_callback,
                 NORMAL_QOS)
         
-        self.publisher_impact = self.create_publisher(StampedBool, 'push_stl/impact_detected', RELIABLE_QOS)
+        self.publisher_impact = self.create_publisher(StampedBool, 'impact_stl/impact_detected', RELIABLE_QOS)
 
         self.vehicle_acceleration = np.array([0.0, 0.0, 0.0])
         self.vehicle_past_accelerations = np.zeros((3,))

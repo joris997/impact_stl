@@ -162,7 +162,7 @@ def solve_two_body_impact(xObjectI,dxObjectI,dxObjectI_post,
         axs[1].set_aspect('equal')
         axs[1].grid(True)
         axs[1].set_title('post-impact')
-        plt.savefig("/home/none/space_ws/p_two_body_impact.png")
+        plt.savefig("/home/px4space/space_ws/p_two_body_impact.png")
 
     xI = x_R_G_val + xObjectI
     dxI = dx_R_G_pre_val

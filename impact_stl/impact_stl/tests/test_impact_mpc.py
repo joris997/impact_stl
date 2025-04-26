@@ -3,7 +3,7 @@ import time
 from rclpy.node import Node
 
 from impact_stl.planners.replanner import RePlanner
-from push_stl.push_stl.ff_rate_mpc_impact import SpacecraftImpactMPC
+from impact_stl.impact_stl.ff_rate_mpc_impact import SpacecraftImpactMPC
 from impact_stl.helpers.plot_rvars_hvars import plot_rvars_hvars
 from impact_stl.helpers.helpers import VerboseBezierPlan2NumpyArray
 import numpy as np

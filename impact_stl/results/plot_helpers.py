@@ -4,7 +4,7 @@ from scipy.spatial.transform import Rotation
 
 import sys
 
-sys.path.append("/home/none/space_ws/src/push_stl/push_stl/planner")
+sys.path.append("/home/px4space/space_ws/src/impact_stl/impact_stl/planner")
 from utilities.beziers import value_bezier, eval_t
 from utilities.read_write_plan import csv_to_zonotopes, csv_to_plan
 from utilities.beziers import get_derivative_control_points_gurobi
@@ -86,47 +86,47 @@ class CSV2Dict(object):
     def get_mpc_reference_data(self):
         data = {'t': [], 'x': [], 'y': [], 'z': []}
         df_cleaned = self.df[["__time",
-                              f"/{self.name}/push_stl/reference_path/poses[0]/pose/position/x",
-                              f"/{self.name}/push_stl/reference_path/poses[0]/pose/position/y",
-                              f"/{self.name}/push_stl/reference_path/poses[0]/pose/position/z"]]
+                              f"/{self.name}/impact_stl/reference_path/poses[0]/pose/position/x",
+                              f"/{self.name}/impact_stl/reference_path/poses[0]/pose/position/y",
+                              f"/{self.name}/impact_stl/reference_path/poses[0]/pose/position/z"]]
         df_cleaned = df_cleaned.dropna()
         df_cleaned["__time"] = df_cleaned["__time"] - df_cleaned["__time"].iloc[0]
         data['t'] = list(df_cleaned["__time"])
-        data['x'] = list(df_cleaned[f"/{self.name}/push_stl/reference_path/poses[0]/pose/position/x"])
-        data['y'] = list(df_cleaned[f"/{self.name}/push_stl/reference_path/poses[0]/pose/position/y"])
-        data['z'] = list(df_cleaned[f"/{self.name}/push_stl/reference_path/poses[0]/pose/position/z"])
+        data['x'] = list(df_cleaned[f"/{self.name}/impact_stl/reference_path/poses[0]/pose/position/x"])
+        data['y'] = list(df_cleaned[f"/{self.name}/impact_stl/reference_path/poses[0]/pose/position/y"])
+        data['z'] = list(df_cleaned[f"/{self.name}/impact_stl/reference_path/poses[0]/pose/position/z"])
         return data
 
     def get_mpc_position_data(self):
         data = {'t': [], 'x': [], 'y': [], 'z': []}
         df_cleaned = self.df[["__time",
-                              f"/{self.name}/push_stl/predicted_path/poses[0]/pose/position/x",
-                              f"/{self.name}/push_stl/predicted_path/poses[0]/pose/position/y",
-                              f"/{self.name}/push_stl/predicted_path/poses[0]/pose/position/z",]]
+                              f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/position/x",
+                              f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/position/y",
+                              f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/position/z",]]
         df_cleaned = df_cleaned.dropna()
         df_cleaned["__time"] = df_cleaned["__time"] - df_cleaned["__time"].iloc[0]
         data['t'] = list(df_cleaned["__time"])
-        data['x'] = list(df_cleaned[f"/{self.name}/push_stl/predicted_path/poses[0]/pose/position/x"])
-        data['y'] = list(df_cleaned[f"/{self.name}/push_stl/predicted_path/poses[0]/pose/position/y"])
-        data['z'] = list(df_cleaned[f"/{self.name}/push_stl/predicted_path/poses[0]/pose/position/z"])
+        data['x'] = list(df_cleaned[f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/position/x"])
+        data['y'] = list(df_cleaned[f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/position/y"])
+        data['z'] = list(df_cleaned[f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/position/z"])
         return data
 
     def get_mpc_attitude_data(self):
         data = {'t': [], 'roll': [], 'pitch': [], 'yaw': []}
         df_cleaned = self.df[["__time",
-                              f"/{self.name}/push_stl/predicted_path/poses[0]/pose/orientation/x",
-                              f"/{self.name}/push_stl/predicted_path/poses[0]/pose/orientation/y",
-                              f"/{self.name}/push_stl/predicted_path/poses[0]/pose/orientation/z",
-                              f"/{self.name}/push_stl/predicted_path/poses[0]/pose/orientation/w"]]
+                              f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/orientation/x",
+                              f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/orientation/y",
+                              f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/orientation/z",
+                              f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/orientation/w"]]
         df_cleaned = df_cleaned.dropna()
         df_cleaned["__time"] = df_cleaned["__time"] - df_cleaned["__time"].iloc[0]
         data['t'] = list(df_cleaned["__time"])
 
         # Convert quaternion to numpy array for Rotation class
-        quats = np.array(df_cleaned[[f"/{self.name}/push_stl/predicted_path/poses[0]/pose/orientation/x",
-                                    f"/{self.name}/push_stl/predicted_path/poses[0]/pose/orientation/y",
-                                    f"/{self.name}/push_stl/predicted_path/poses[0]/pose/orientation/z",
-                                    f"/{self.name}/push_stl/predicted_path/poses[0]/pose/orientation/w"]])
+        quats = np.array(df_cleaned[[f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/orientation/x",
+                                    f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/orientation/y",
+                                    f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/orientation/z",
+                                    f"/{self.name}/impact_stl/predicted_path/poses[0]/pose/orientation/w"]])
 
         euler = Rotation.from_quat(quats).as_euler('xyz', degrees=True)
         data['roll'] = list(euler[:, 0])
@@ -137,18 +137,18 @@ class CSV2Dict(object):
     def get_mpc_attitude_reference_data(self):
         data = {'t': [], 'roll': [], 'pitch': [], 'yaw': []}
         df_cleaned = self.df[["__time",
-                              f"/{self.name}/push_stl/reference_path/poses[0]/pose/orientation/x",
-                              f"/{self.name}/push_stl/reference_path/poses[0]/pose/orientation/y",
-                              f"/{self.name}/push_stl/reference_path/poses[0]/pose/orientation/z",
-                              f"/{self.name}/push_stl/reference_path/poses[0]/pose/orientation/w"]]
+                              f"/{self.name}/impact_stl/reference_path/poses[0]/pose/orientation/x",
+                              f"/{self.name}/impact_stl/reference_path/poses[0]/pose/orientation/y",
+                              f"/{self.name}/impact_stl/reference_path/poses[0]/pose/orientation/z",
+                              f"/{self.name}/impact_stl/reference_path/poses[0]/pose/orientation/w"]]
         df_cleaned = df_cleaned.dropna()
         df_cleaned["__time"] = df_cleaned["__time"] - df_cleaned["__time"].iloc[0]
         data['t'] = list(df_cleaned["__time"])
         # Convert quaternion to numpy array for Rotation class
-        quats = np.array(df_cleaned[[f"/{self.name}/push_stl/reference_path/poses[0]/pose/orientation/x",
-                                     f"/{self.name}/push_stl/reference_path/poses[0]/pose/orientation/y",
-                                     f"/{self.name}/push_stl/reference_path/poses[0]/pose/orientation/z",
-                                     f"/{self.name}/push_stl/reference_path/poses[0]/pose/orientation/w"]])
+        quats = np.array(df_cleaned[[f"/{self.name}/impact_stl/reference_path/poses[0]/pose/orientation/x",
+                                     f"/{self.name}/impact_stl/reference_path/poses[0]/pose/orientation/y",
+                                     f"/{self.name}/impact_stl/reference_path/poses[0]/pose/orientation/z",
+                                     f"/{self.name}/impact_stl/reference_path/poses[0]/pose/orientation/w"]])
 
         euler = Rotation.from_quat(quats).as_euler('xyz', degrees=True)
         data['roll'] = list(euler[:, 0])

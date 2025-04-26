@@ -104,12 +104,12 @@ class MainPlanner(Node):
         )
         self.compute_plan_sub = self.create_subscription(
             StampedBool,
-            'push_stl/compute_plan',
+            'impact_stl/compute_plan',
             self.compute_plan_callback,
             new_qos_profile)
         self.compute_reset_plan_sub = self.create_subscription(
             StampedBool,
-            'push_stl/compute_reset_plan',
+            'impact_stl/compute_reset_plan',
             self.compute_reset_plan_callback,
             new_qos_profile)
         
@@ -130,7 +130,7 @@ class MainPlanner(Node):
 
     def compute_plan_callback(self, msg):
         self.get_logger().info('Computing plan')
-        package_share_directory = get_package_share_directory('push_stl')
+        package_share_directory = get_package_share_directory('impact_stl')
         plans_path = os.path.join(package_share_directory)
 
         self.rvars,self.hvars,self.idvars,self.other_names = csv_to_plan(robot_name=self.robot_name,

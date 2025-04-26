@@ -16,7 +16,7 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     ld.add_action(Node(
-        package='push_stl',
+        package='impact_stl',
             namespace='pop',
             executable='ff_rate_mpc_impact', # spacecraft_mpc, spacecraft_impact_mpc
             name='pop_mpc',
@@ -27,7 +27,7 @@ def generate_launch_description():
                         {'object_ns':'/snap'}]
     ))
     ld.add_action(Node(
-        package='push_stl',
+        package='impact_stl',
             namespace='crackle',
             executable='ff_rate_mpc_impact', # spacecraft_mpc, spacecraft_impact_mpc
             name='crackle_mpc',
@@ -39,7 +39,7 @@ def generate_launch_description():
     ))
     if not SITL:
         ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='snap',
             executable='ff_rate_mpc_velocity_keeping', # spacecraft_mpc, spacecraft_impact_mpc
             name='snap_mpc',
@@ -51,7 +51,7 @@ def generate_launch_description():
 
     # Bezier planner
     ld.add_action(Node(
-        package='push_stl',
+        package='impact_stl',
         namespace='crackle',
         executable='main_planner',
         name='crackle_planner',
@@ -60,7 +60,7 @@ def generate_launch_description():
         parameters=[{'scenario_name':'pong'}]
     ))
     ld.add_action(Node(
-        package='push_stl',
+        package='impact_stl',
         namespace='pop',
         executable='main_planner',
         name='pop_planner',
@@ -72,14 +72,14 @@ def generate_launch_description():
     # Impact detector
     if SITL:
         ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='crackle',
             executable='impact_detector',
             name='crackle_impact_detector',
             parameters=[{'threshold': 0.4, 'gz': True}]
         ))
         ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='pop',
             executable='impact_detector',
             name='pop_impact_detector',
@@ -87,21 +87,21 @@ def generate_launch_description():
         ))
     else:
         ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='snap',
             executable='impact_detector',
             name='snap_impact_detector',
             parameters=[{'threshold': 1.0, 'gz': False}]
         ))
         ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='crackle',
             executable='impact_detector',
             name='crackle_impact_detector',
             parameters=[{'threshold': 1.0, 'gz': False}]
         ))
         ld.add_action(Node(
-            package='push_stl',
+            package='impact_stl',
             namespace='pop',
             executable='impact_detector',
             name='pop_impact_detector',
@@ -110,7 +110,7 @@ def generate_launch_description():
 
     # Replanner
     ld.add_action(Node(
-        package='push_stl',
+        package='impact_stl',
         namespace='crackle',
         executable='replanner',
         name='crackle_replanner',
@@ -119,7 +119,7 @@ def generate_launch_description():
                     {'scenario_name':'pong'}]
     ))
     ld.add_action(Node(
-        package='push_stl',
+        package='impact_stl',
         namespace='pop',
         executable='replanner',
         name='pop_replanner',

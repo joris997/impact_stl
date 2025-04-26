@@ -26,14 +26,14 @@ def generate_launch_description():
             package='rviz2',
             executable='rviz2',
             name='rviz2',
-            arguments=['-d', [os.path.join(get_package_share_directory('push_stl'), 'config.rviz')]]
+            arguments=['-d', [os.path.join(get_package_share_directory('impact_stl'), 'config.rviz')]]
     ))
     # Plotjuggler from the juggler_hw_1.xml file (2 spacecrafts)
     ld.add_action(Node(
             package='plotjuggler',
             executable='plotjuggler',
             name='plotjuggler',
-            arguments=['-l', os.path.join(get_package_share_directory('push_stl'), 'juggler_hw_1.xml')]
+            arguments=['-l', os.path.join(get_package_share_directory('impact_stl'), 'juggler_hw_1.xml')]
     ))
 
     # Offboard
