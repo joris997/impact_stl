@@ -1,6 +1,10 @@
 # impact_stl
 Code for the paper "Collaborative Object Transportation in Space via Impact Interactions"
 
+The project page can be found [here](https://joris997.github.io/impact_stl/), the paper can be found [here](https://arxiv.org/abs/todo).
+
+![hippo](media/obstacle_avoidance_4_cut.gif)
+
 # Before you start
 The code, while being a ROS2 package in its entirety, consists of two distinct parts;
 - `impact_stl/planner` which generates the desired motion plans and writes them to `.csv` files
@@ -69,3 +73,12 @@ In the `impact_stl` directory, run the following command to start the scenario:
 ### Start launch file
 In the `impact_stl` directory, run the following command to start the simulation:
 ```ros2 launch impact_stl start_scenario.launch.py```
+
+# Hardware
+If you have access to the ATMOS platform, you can also run the code on the platforms. The only difference is that you need to launch the `hw_obstacle_avoidance.launch.py` file instead of the `sitl_obstacle_avoidance.launch.py` file (and you can skip micro-ros as this is run on the robots).
+
+Some things to note:
+- In the replanner, the frames need to be manually changed for hardware. You can `ctrl+f` for `#!` to find the lines that need to be changed.
+- You might need to change the restitution coefficient in the planner and replaner to match the hardware. We recently changed the robot's bumpers, so I will update these values soon.
+
+![hippo](media/pong_4.gif)
