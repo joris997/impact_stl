@@ -1,7 +1,7 @@
 # impact_stl
 Code for the paper "Collaborative Object Transportation in Space via Impact Interactions"
 
-The project page can be found [here](https://joris997.github.io/impact_stl/), the paper can be found [here](https://arxiv.org/abs/todo).
+The project page can be found [here](https://joris997.github.io/impact_stl/), the paper can be found [here](https://arxiv.org/abs/2504.18667).
 
 ![hippo](media/obstacle_avoidance_4_cut.gif)
 
@@ -82,3 +82,15 @@ Some things to note:
 - You might need to change the restitution coefficient in the planner and replaner to match the hardware. We recently changed the robot's bumpers, so I will update these values soon.
 
 ![hippo](media/pong_4.gif)
+
+# Citation
+If you found this code useful, please consider citing our paper:
+
+```bibtex
+@article{verhagen2025collaborative,
+  title={Collaborative Object Transportation in Space via Impact Interactions},
+  author={Verhagen, Joris and Tumova, Jana},
+  journal={arXiv preprint arXiv:2504.18667},
+  year={2023}
+}
+```
