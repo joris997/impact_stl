@@ -7,12 +7,12 @@ import numpy as np
 import time
 import os
 
-from impact_stl.helpers.beziers import value_bezier, eval_t, get_derivative_control_points_gurobi
-from impact_stl.helpers.read_write_plan import csv_to_plan
+from planner.utilities.beziers import value_bezier, eval_t, get_derivative_control_points_gurobi
+from push_stl.helpers.read_write_plan import csv_to_plan
 
 from rclpy.node import Node
 from rclpy.clock import Clock
-from impact_stl.helpers.qos_profiles import NORMAL_QOS, RELIABLE_QOS
+from push_stl.helpers.qos_profiles import NORMAL_QOS, RELIABLE_QOS
 
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
@@ -31,12 +31,12 @@ from my_msgs.msg import StampedBool, VerboseBezierPlan
 
 from ament_index_python.packages import get_package_share_directory
 
-from impact_stl.models.spacecraft_rate_model import SpacecraftRateModel
-from impact_stl.planners.main_planner import plan_to_plan_msg
-# from impact_stl.controller.rate_mpc import SpacecraftRateMPC
-from impact_stl.controllers.rate_mpc import SpacecraftRateMPC
-from impact_stl.controllers.rate_impact_mpc import SpacecraftRateImpactMPC
-from impact_stl.helpers.helpers import vector2PoseMsg, BezierCurve2NumpyArray, \
+from push_stl.models.spacecraft_rate_model import SpacecraftRateModel
+from push_stl.planners.main_planner import plan_to_plan_msg
+# from push_stl.controller.rate_mpc import SpacecraftRateMPC
+from push_stl.controllers.rate_mpc import SpacecraftRateMPC
+from push_stl.controllers.rate_impact_mpc import SpacecraftRateImpactMPC
+from push_stl.helpers.helpers import vector2PoseMsg, BezierCurve2NumpyArray, \
                             BezierPlan2NumpyArray, interpolate_bezier, VerboseBezierPlan2NumpyArray,\
                             Quaternion2Euler, Euler2Quaternion
 
@@ -49,7 +49,6 @@ class SpacecraftImpactMPC(Node):
         # for properly timing the replanning
         self.robot_name = self.get_namespace()
         self.object_ns = self.declare_parameter('object_ns', '/crackle').value
-        self.scenario_name = self.declare_parameter('scenario_name', 'catch_throw').value
         self.enable_cbf = self.declare_parameter('enable_cbf', False).value
         self.get_logger().info(f"robot_name: {self.robot_name}, object_ns: {self.object_ns}, enable_cbf: {self.enable_cbf}")
 
@@ -95,14 +94,14 @@ class SpacecraftImpactMPC(Node):
         # Bezier planner stuff
         self.execute_plan_sub = self.create_subscription(
             StampedBool,
-            'impact_stl/execute_plan',
+            'push_stl/execute_plan',
             self.execute_plan_callback,
             RELIABLE_QOS)
         
         # Impact detector
         self.impact_detected_sub = self.create_subscription(
             StampedBool,
-            'impact_stl/impact_detected',
+            'push_stl/impact_detected',
             self.impact_detected_callback,
             RELIABLE_QOS)
         self.impacted = False
@@ -116,22 +115,20 @@ class SpacecraftImpactMPC(Node):
             RELIABLE_QOS)
 
         # controller heuristics
-        self.post_impact_backup_duration = 3.0  # how long we turn the contoller off after an impact
+        self.post_impact_backup_duration = 2.0  # how long we turn the contoller off after an impact
         self.t_object_coming = np.inf           # time when the object is coming to our impact point
-        self.object_coming_wait = 3.0           # how long we wait with replanning after the object is coming
+        self.object_coming_wait = 1.0           # how long we wait with replanning after the object is coming
 
         # for long specs, object_coming_wait: 3, stacksize can be larger: more precise
         # for short specs, object_coming_wait: 1, stacksize has to be smaller
         
         # get the plan of the object from the csv file
         # this plan also never changes, so we can load it and use it forever :)
-        package_share_directory = get_package_share_directory('impact_stl')
+        package_share_directory = get_package_share_directory('push_stl')
         plans_path = os.path.join(package_share_directory)
         try:
             self.get_logger().info(f"getting the plan for object {self.object_ns}")
-            rvar,hvar,ids,other_names = csv_to_plan(robot_name=self.object_ns,
-                                                    scenario_name=self.scenario_name,
-                                                    path=plans_path)
+            rvar,hvar,ids,other_names = csv_to_plan(self.object_ns,path=plans_path)
             self.plan_object = VerboseBezierPlan2NumpyArray(plan_to_plan_msg(rvar,hvar,ids,other_names))
             # print some info
             self.get_logger().info(f"Number of bezier segments: {len(self.plan_object['rvar'])}")
@@ -152,12 +149,15 @@ class SpacecraftImpactMPC(Node):
 
         self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, 'fmu/in/offboard_control_mode', NORMAL_QOS)
         self.publisher_rates_setpoint = self.create_publisher(VehicleRatesSetpoint, 'fmu/in/vehicle_rates_setpoint', NORMAL_QOS)
-        self.predicted_path_pub = self.create_publisher(Path, 'impact_stl/predicted_path', 10)
-        self.reference_path_pub = self.create_publisher(Path, "impact_stl/reference_path", 10)
-        self.entire_path_pub = self.create_publisher(Path, "impact_stl/entire_path", 10)
-        self.publisher_recompute_local_plan = self.create_publisher(StampedBool, 'impact_stl/recompute_local_plan', RELIABLE_QOS)
+        self.predicted_path_pub = self.create_publisher(Path, 'push_stl/predicted_path', 10)
+        self.reference_path_pub = self.create_publisher(Path, "push_stl/reference_path", 10)
+        self.entire_path_pub = self.create_publisher(Path, "push_stl/entire_path", 10)
+        self.publisher_recompute_local_plan = self.create_publisher(StampedBool, 'push_stl/recompute_local_plan', RELIABLE_QOS)
         self.timer_period = 0.05  # seconds
         self.timer = self.create_timer(self.timer_period, self.cmdloop_callback)
+
+        self.timer_period2 = 0.1
+        self.offboard_timer = self.create_timer(self.timer_period2, self.offboard_callback)
 
         self.nav_state = VehicleStatus.NAVIGATION_STATE_MAX
 
@@ -262,7 +262,7 @@ class SpacecraftImpactMPC(Node):
         impact_idx = None
         xpre = None
         xpost = None
-        tI = 1e5
+        tI = None
         weights = {'Q': None, 'Q_e': None, 'R': None}
 
         # if we haven't started the simulation, we just keep position at the setpoint
@@ -395,9 +395,7 @@ class SpacecraftImpactMPC(Node):
             return setpoints, times, impact_idx, xpre, xpost, weights, tI
 
 
-
-    def cmdloop_callback(self):
-        t0 = time.time()
+    def offboard_callback(self):
         # Publish offboard control modes
         offboard_msg = OffboardControlMode()
         offboard_msg.timestamp = int(Clock().now().nanoseconds / 1000)
@@ -410,6 +408,8 @@ class SpacecraftImpactMPC(Node):
         offboard_msg.body_rate = True   # rate control
         self.publisher_offboard_mode.publish(offboard_msg)
 
+    def cmdloop_callback(self):
+        t0 = time.time()
         x0 = np.array([self.vehicle_local_position[0], self.vehicle_local_position[1], self.vehicle_local_position[2],
                        self.vehicle_local_velocity[0], self.vehicle_local_velocity[1], self.vehicle_local_velocity[2],
                        self.vehicle_attitude[0], self.vehicle_attitude[1], self.vehicle_attitude[2], self.vehicle_attitude[3]]).reshape(10, 1)
@@ -420,7 +420,8 @@ class SpacecraftImpactMPC(Node):
 
         # get the reference states and corresponding times in the horizon
         setpoints, times, impact_idx, xpre, xpost, weights, tI = self.get_setpoints()
-        
+        # self.get_logger().info(f"setpoints: {setpoints[0][0:2].T}, pos: {self.vehicle_local_position[0:2].T}")
+
         # solve the mpc
         if impact_idx is None:
             # now the initial guess has to be x_pred again, but check the size!
@@ -436,19 +437,21 @@ class SpacecraftImpactMPC(Node):
                 plan0 = interpolate_bezier(self.plan,t)
                 id = plan0['id']
             # self.get_logger().info(f"t: {t}")
-            # self.get_logger().info(f"id: {id}") if self.enable_cbf else None
-            if (id == 'pre' and tI - t <= 5) or not self.enable_cbf:
-                enable_cbf = False
-                xobj = None
-                self.get_logger().info(f"enable_cbf: {enable_cbf}") if self.enable_cbf else None
+            self.get_logger().info(f"id: {id}") if self.enable_cbf else None
+            if self.started:
+                if (id == 'pre' and tI - t <= 5) or not self.enable_cbf:
+                    enable_cbf = False
+                    xobj = None
             else:
                 enable_cbf = True
                 xobj = xobj
+            self.get_logger().info(f"enable_cbf: {enable_cbf}") if self.enable_cbf else None
             x_pred, u_pred = self.mpc.solve(x0,setpoints,
                                             weights=weights,
                                             initial_guess=self.initial_guess,
                                             xobj=xobj,enable_cbf=enable_cbf,
-                                            verbose=False)
+                                            logger=self.get_logger(),
+                                            verbose=False)#self.robot_name=="/pop")
         else:
             assert(xpre is not None)
             assert(xpost is not None)
@@ -506,8 +509,8 @@ class SpacecraftImpactMPC(Node):
             self.publish_rate_setpoint(u_pred)
         
         # print(f"Time elapsed: {time.time() - t0}")
-        if time.time() - t0 > self.timer_period:
-            self.get_logger().info(f"LOOP TOOK TOO LONG: {time.time() - t0} (timer_period: {self.timer_period})")
+        # if time.time() - t0 > self.timer_period:
+        #     self.get_logger().info(f"LOOP TOOK TOO LONG: {time.time() - t0} (timer_period: {self.timer_period})")
             
     def add_set_plan_callback(self, request, response):
         self.get_logger().info('Received request')

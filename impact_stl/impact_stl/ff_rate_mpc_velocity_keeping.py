@@ -7,11 +7,11 @@ import numpy as np
 import time
 import os
 
-from impact_stl.helpers.read_write_plan import csv_to_plan
+from push_stl.helpers.read_write_plan import csv_to_plan
 
 from rclpy.node import Node
 from rclpy.clock import Clock
-from impact_stl.helpers.qos_profiles import NORMAL_QOS, RELIABLE_QOS
+from push_stl.helpers.qos_profiles import NORMAL_QOS, RELIABLE_QOS
 
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
@@ -30,15 +30,15 @@ from my_msgs.msg import StampedBool, VerboseBezierPlan
 
 from ament_index_python.packages import get_package_share_directory
 
-from impact_stl.models.spacecraft_rate_model import SpacecraftRateModel
-from impact_stl.planners.main_planner import plan_to_plan_msg
-# from impact_stl.controller.rate_mpc import SpacecraftRateMPC
-from impact_stl.controllers.rate_mpc import SpacecraftRateMPC
-from impact_stl.controllers.rate_impact_mpc import SpacecraftRateImpactMPC
-from impact_stl.helpers.helpers import vector2PoseMsg, BezierCurve2NumpyArray, \
+from push_stl.models.spacecraft_rate_model import SpacecraftRateModel
+from push_stl.planners.main_planner import plan_to_plan_msg
+# from push_stl.controller.rate_mpc import SpacecraftRateMPC
+from push_stl.controllers.rate_mpc import SpacecraftRateMPC
+from push_stl.controllers.rate_impact_mpc import SpacecraftRateImpactMPC
+from push_stl.helpers.helpers import vector2PoseMsg, BezierCurve2NumpyArray, \
                             BezierPlan2NumpyArray, interpolate_bezier, VerboseBezierPlan2NumpyArray,\
                             Quaternion2Euler, Euler2Quaternion
-from impact_stl.helpers.beziers import get_derivative_control_points_gurobi, value_bezier, eval_t
+from planner.utilities.beziers import get_derivative_control_points_gurobi, value_bezier, eval_t
 
 
 class SpacecraftCleanMPC(Node):
@@ -50,7 +50,6 @@ class SpacecraftCleanMPC(Node):
         # for properly timing the replanning
         self.robot_name = self.get_namespace()
         self.object_ns = self.declare_parameter('object_ns', '/pop').value
-        self.scenario_name = self.declare_parameter('scenario_name', 'catch_throw').value
 
         # get initial state from passed parameters
         self.x0 = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -87,14 +86,14 @@ class SpacecraftCleanMPC(Node):
         # Bezier planner stuff
         self.execute_plan_sub = self.create_subscription(
             StampedBool,
-            'impact_stl/execute_plan',
+            'push_stl/execute_plan',
             self.execute_plan_callback,
             RELIABLE_QOS)
         
         # Impact detector
         self.impact_detected_sub = self.create_subscription(
             StampedBool,
-            'impact_stl/impact_detected',
+            'push_stl/impact_detected',
             self.impact_detected_callback,
             RELIABLE_QOS)
         self.impacted = False
@@ -103,7 +102,7 @@ class SpacecraftCleanMPC(Node):
         # Reset to origin listener
         self.reset_sub = self.create_subscription(
             StampedBool,
-            'impact_stl/reset',
+            'push_stl/reset',
             self.reset_callback,
             RELIABLE_QOS)
         
@@ -115,18 +114,16 @@ class SpacecraftCleanMPC(Node):
             RELIABLE_QOS)
         
         # controller heuristics
-        self.post_impact_backup_duration = 0.5  # how long we turn the contoller off after an impact
+        self.post_impact_backup_duration = 0.75 # how long we turn the contoller off after an impact
         self.t_object_coming = np.inf           # time when the object is coming to our impact point
         self.has_impacted = False               # flag to indicate that we have impacted the object
 
         # get the plan of the object from the csv file
         # this plan also never changes, so we can load it and use it forever :)
-        package_share_directory = get_package_share_directory('impact_stl')
+        package_share_directory = get_package_share_directory('push_stl')
         plans_path = os.path.join(package_share_directory)
         try:
-            rvar,hvar,ids,other_names = csv_to_plan(robot_name=self.object_ns,
-                                                    scenario_name=self.scenario_name,
-                                                    path=plans_path)
+            rvar,hvar,ids,other_names = csv_to_plan(self.object_ns,path=plans_path)
             self.plan_object = VerboseBezierPlan2NumpyArray(plan_to_plan_msg(rvar,hvar,ids,other_names))
             # print some info
             self.get_logger().info(f"Number of bezier segments: {len(self.plan_object['rvar'])}")
@@ -146,10 +143,10 @@ class SpacecraftCleanMPC(Node):
 
         self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, 'fmu/in/offboard_control_mode', NORMAL_QOS)
         self.publisher_rates_setpoint = self.create_publisher(VehicleRatesSetpoint, 'fmu/in/vehicle_rates_setpoint', NORMAL_QOS)
-        self.predicted_path_pub = self.create_publisher(Path, 'impact_stl/predicted_path', 10)
-        self.reference_path_pub = self.create_publisher(Path, "impact_stl/reference_path", 10)
-        self.entire_path_pub = self.create_publisher(Path, "impact_stl/entire_path", 10)
-        self.publisher_recompute_local_plan = self.create_publisher(StampedBool, 'impact_stl/recompute_local_plan', RELIABLE_QOS)
+        self.predicted_path_pub = self.create_publisher(Path, 'push_stl/predicted_path', 10)
+        self.reference_path_pub = self.create_publisher(Path, "push_stl/reference_path", 10)
+        self.entire_path_pub = self.create_publisher(Path, "push_stl/entire_path", 10)
+        self.publisher_recompute_local_plan = self.create_publisher(StampedBool, 'push_stl/recompute_local_plan', RELIABLE_QOS)
         self.timer_period = 0.05  # seconds
         self.timer = self.create_timer(self.timer_period, self.cmdloop_callback)
 
@@ -169,6 +166,9 @@ class SpacecraftCleanMPC(Node):
         # Create Spacecraft and controller objects
         self.model = SpacecraftRateModel()
         self.mpc = SpacecraftRateMPC(self.model,Tf=1.0,N=10)
+        self.weights = {'Q': np.diag([5e0, 5e0, 5e0, 8e-1, 8e-1, 8e-1, 8e3]),
+                        'Q_e': 10 * np.diag([5e0, 5e0, 5e0, 8e-1, 8e-1, 8e-1, 8e3]),
+                        'R': 2*np.diag([3e-2, 3e-2, 3e-2, 2e0, 2e0, 2e0])}
         self.initial_guess = {'X': None, 'U': None}
 
         self.vehicle_attitude = np.array([1.0, 0.0, 0.0, 0.0])
@@ -246,7 +246,8 @@ class SpacecraftCleanMPC(Node):
     def get_setpoints(self):
         t = (Clock().now().nanoseconds / 1000 - self.start_time) / 1e6
         setpoints = []
-        weights = {'Q': None, 'Q_e': None, 'R': None}
+        # weights = {'Q': None, 'Q_e': None, 'R': None}
+        weights = self.weights
 
         setpoint = self.x0
         for i in range(self.mpc.N+1):

@@ -193,7 +193,7 @@ class SpacecraftRateMPC():
               weights={'Q': None, 'Q_e': None, 'R': None},
               initial_guess={'X': None, 'U': None},
               xobj=None, enable_cbf=True,
-              verbose=False):
+              logger=None, verbose=False):
         t0 = time.time()
 
         # print(f"x0: {x0}")
@@ -244,8 +244,80 @@ class SpacecraftRateMPC():
             X_pred = np.zeros((self.nx, self.N+1))
             U_pred = np.zeros((self.nu, self.N))
 
-        self.calculate_state_error(X_pred[:,0], xref[:,0], Q)
-
-        print(f"Optimization time: {time.time()-t0}") if verbose else None
-
+        logger.info(f"error: {self.calculate_state_error(X_pred[:,0], xref[:,0], Q)}") if verbose and logger is not None else None
+        logger.info(f"X_pred:  {X_pred[:,0]}") if verbose and logger is not None else None
+        logger.info(f"Optimization time: {time.time()-t0}") if verbose and logger is not None else None
         return X_pred, U_pred
+
+
+#! Impact detector with direction information
+# __author__ = "Joris Verhagen"
+# __contact__ = "jorisv@kth.se"
+# import numpy as np
+# import rclpy
+# from rclpy.clock import Clock
+# from rclpy.node import Node
+# from push_stl.helpers.qos_profiles import RELIABLE_QOS, NORMAL_QOS
+# from px4_msgs.msg import VehicleLocalPosition
+# from my_msgs.msg import StampedBool
+# class ImpactDetector(Node):
+#     def __init__(self):
+#         super().__init__('impact_detector')
+#         self.threshold = self.declare_parameter('threshold', 1.0).value # 1.0 for sim, 3.0 for hw
+#         self.gz = self.declare_parameter('gz', True).value
+#         if self.gz:
+#             self.local_position_sub = self.create_subscription(
+#                 VehicleLocalPosition,
+#                 'fmu/out/vehicle_local_position_gz',
+#                 self.vehicle_local_position_callback,
+#                 NORMAL_QOS)
+#         else:
+#             self.local_position_sub = self.create_subscription(
+#                 VehicleLocalPosition,
+#                 'fmu/out/vehicle_local_position',
+#                 self.vehicle_local_position_callback,
+#                 NORMAL_QOS)
+#         self.publisher_impact = self.create_publisher(StampedBool, 'push_stl/impact_detected', RELIABLE_QOS)
+#         self.publisher_impact_direction = self.create_publisher(StampedBool, 'push_stl/impact_direction', RELIABLE_QOS)
+#         self.vehicle_acceleration = np.array([0.0, 0.0, 0.0])
+#         self.vehicle_past_accelerations = np.zeros((3,))
+#         self.past_accel_x = np.zeros((3,))
+#         self.past_accel_y = np.zeros((3,))
+#         # get the current time
+#         self.t_start = Clock().now().nanoseconds/1000
+#         self.t_wait  = 3
+#         self.get_logger().info('Created an impact detector')
+#     def vehicle_local_position_callback(self, msg):
+#         if (Clock().now().nanoseconds/1000 - self.t_start)/1e6 < self.t_wait:
+#             return
+#         # TODO: handle NED->ENU transformation
+#         self.vehicle_acceleration[0] = msg.ax
+#         self.vehicle_acceleration[1] = -msg.ay
+#         self.vehicle_acceleration[2] = -msg.az
+#         self.vehicle_past_accelerations[:-1] = self.vehicle_past_accelerations[1:]
+#         self.vehicle_past_accelerations[-1] = np.linalg.norm(self.vehicle_acceleration)
+#         self.past_accel_x[:-1] = self.past_accel_x[1:]
+#         self.past_accel_x[-1] = self.vehicle_acceleration[0]
+#         self.past_accel_y[:-1] = self.past_accel_y[1:]
+#         self.past_accel_y[-1] = self.vehicle_acceleration[1]
+#         if np.mean(self.vehicle_past_accelerations) > self.threshold:
+#             self.get_logger().info('--- IMPACT DETECTED ---')
+#             msg = StampedBool()
+#             msg.timestamp = int(Clock().now().nanoseconds / 1000)
+#             msg.data[0] = True
+#             if abs(np.mean(self.past_accel_x)) > abs(np.mean(self.past_accel_y)):
+#                 self.get_logger().info('Impact direction: y')
+#                 msg.data[1] = True
+#             else:
+#                 self.get_logger().info('Impact direction: x')
+#                 msg.data[1] = False
+#             self.publisher_impact.publish(msg)
+#             self.get_logger().info('Impact message published')
+# def main(args=None):
+#     rclpy.init(args=args)
+#     impact_detector = ImpactDetector()
+#     rclpy.spin(impact_detector)
+#     impact_detector.destroy_node()
+#     rclpy.shutdown()
+# if __name__ == '__main__':
+#     main()
