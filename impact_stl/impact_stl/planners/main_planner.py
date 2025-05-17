@@ -86,7 +86,7 @@ class MainPlanner(Node):
         self.node = node
 
         self.robot_name = self.get_namespace()
-        self.scenario_name = self.declare_parameter('scenario_name','catch_throw').value
+        self.scenario_name = self.declare_parameter('scenario_name','throw_and_catch').value
 
         # Subscribers to the state
         self.local_position_sub = self.create_subscription(

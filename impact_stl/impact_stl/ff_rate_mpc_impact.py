@@ -8,11 +8,11 @@ import time
 import os
 
 from planner.utilities.beziers import value_bezier, eval_t, get_derivative_control_points_gurobi
-from push_stl.helpers.read_write_plan import csv_to_plan
+from impact_stl.helpers.read_write_plan import csv_to_plan
 
 from rclpy.node import Node
 from rclpy.clock import Clock
-from push_stl.helpers.qos_profiles import NORMAL_QOS, RELIABLE_QOS
+from impact_stl.helpers.qos_profiles import NORMAL_QOS, RELIABLE_QOS
 
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
@@ -31,12 +31,12 @@ from my_msgs.msg import StampedBool, VerboseBezierPlan
 
 from ament_index_python.packages import get_package_share_directory
 
-from push_stl.models.spacecraft_rate_model import SpacecraftRateModel
-from push_stl.planners.main_planner import plan_to_plan_msg
-# from push_stl.controller.rate_mpc import SpacecraftRateMPC
-from push_stl.controllers.rate_mpc import SpacecraftRateMPC
-from push_stl.controllers.rate_impact_mpc import SpacecraftRateImpactMPC
-from push_stl.helpers.helpers import vector2PoseMsg, BezierCurve2NumpyArray, \
+from impact_stl.models.spacecraft_rate_model import SpacecraftRateModel
+from impact_stl.planners.main_planner import plan_to_plan_msg
+# from impact_stl.controller.rate_mpc import SpacecraftRateMPC
+from impact_stl.controllers.rate_mpc import SpacecraftRateMPC
+from impact_stl.controllers.rate_impact_mpc import SpacecraftRateImpactMPC
+from impact_stl.helpers.helpers import vector2PoseMsg, BezierCurve2NumpyArray, \
                             BezierPlan2NumpyArray, interpolate_bezier, VerboseBezierPlan2NumpyArray,\
                             Quaternion2Euler, Euler2Quaternion
 
@@ -49,6 +49,7 @@ class SpacecraftImpactMPC(Node):
         # for properly timing the replanning
         self.robot_name = self.get_namespace()
         self.object_ns = self.declare_parameter('object_ns', '/crackle').value
+        self.scenario_name = self.declare_parameter('scenario_name', 'throw_and_catch').value
         self.enable_cbf = self.declare_parameter('enable_cbf', False).value
         self.get_logger().info(f"robot_name: {self.robot_name}, object_ns: {self.object_ns}, enable_cbf: {self.enable_cbf}")
 
@@ -94,14 +95,14 @@ class SpacecraftImpactMPC(Node):
         # Bezier planner stuff
         self.execute_plan_sub = self.create_subscription(
             StampedBool,
-            'push_stl/execute_plan',
+            'impact_stl/execute_plan',
             self.execute_plan_callback,
             RELIABLE_QOS)
         
         # Impact detector
         self.impact_detected_sub = self.create_subscription(
             StampedBool,
-            'push_stl/impact_detected',
+            'impact_stl/impact_detected',
             self.impact_detected_callback,
             RELIABLE_QOS)
         self.impacted = False
@@ -115,7 +116,7 @@ class SpacecraftImpactMPC(Node):
             RELIABLE_QOS)
 
         # controller heuristics
-        self.post_impact_backup_duration = 2.0  # how long we turn the contoller off after an impact
+        self.post_impact_backup_duration = 1.0  # how long we turn the contoller off after an impact
         self.t_object_coming = np.inf           # time when the object is coming to our impact point
         self.object_coming_wait = 1.0           # how long we wait with replanning after the object is coming
 
@@ -124,11 +125,13 @@ class SpacecraftImpactMPC(Node):
         
         # get the plan of the object from the csv file
         # this plan also never changes, so we can load it and use it forever :)
-        package_share_directory = get_package_share_directory('push_stl')
+        package_share_directory = get_package_share_directory('impact_stl')
         plans_path = os.path.join(package_share_directory)
         try:
             self.get_logger().info(f"getting the plan for object {self.object_ns}")
-            rvar,hvar,ids,other_names = csv_to_plan(self.object_ns,path=plans_path)
+            rvar,hvar,ids,other_names = csv_to_plan(robot_name=self.object_ns,
+                                                    scenario_name=self.scenario_name,
+                                                    path=plans_path)
             self.plan_object = VerboseBezierPlan2NumpyArray(plan_to_plan_msg(rvar,hvar,ids,other_names))
             # print some info
             self.get_logger().info(f"Number of bezier segments: {len(self.plan_object['rvar'])}")
@@ -149,10 +152,10 @@ class SpacecraftImpactMPC(Node):
 
         self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, 'fmu/in/offboard_control_mode', NORMAL_QOS)
         self.publisher_rates_setpoint = self.create_publisher(VehicleRatesSetpoint, 'fmu/in/vehicle_rates_setpoint', NORMAL_QOS)
-        self.predicted_path_pub = self.create_publisher(Path, 'push_stl/predicted_path', 10)
-        self.reference_path_pub = self.create_publisher(Path, "push_stl/reference_path", 10)
-        self.entire_path_pub = self.create_publisher(Path, "push_stl/entire_path", 10)
-        self.publisher_recompute_local_plan = self.create_publisher(StampedBool, 'push_stl/recompute_local_plan', RELIABLE_QOS)
+        self.predicted_path_pub = self.create_publisher(Path, 'impact_stl/predicted_path', 10)
+        self.reference_path_pub = self.create_publisher(Path, "impact_stl/reference_path", 10)
+        self.entire_path_pub = self.create_publisher(Path, "impact_stl/entire_path", 10)
+        self.publisher_recompute_local_plan = self.create_publisher(StampedBool, 'impact_stl/recompute_local_plan', RELIABLE_QOS)
         self.timer_period = 0.05  # seconds
         self.timer = self.create_timer(self.timer_period, self.cmdloop_callback)
 
@@ -485,25 +488,25 @@ class SpacecraftImpactMPC(Node):
 
         self.initial_guess = {'X': x_pred, 'U': u_pred}
 
-        predicted_path_msg = Path()
-        for idx in range(x_pred.shape[1]):
-            # print(f"idx: {idx}, x_pred: {x_pred[:,idx]}")
-            predicted_state = x_pred[:,idx]
-            # Publish time history of the vehicle path
-            predicted_pose_msg = vector2PoseMsg('map', predicted_state[0:3], np.array([1.0, 0.0, 0.0, 0.0]))
-            predicted_path_msg.header = predicted_pose_msg.header
-            predicted_path_msg.poses.append(predicted_pose_msg)
-        self.predicted_path_pub.publish(predicted_path_msg)
+        # predicted_path_msg = Path()
+        # for idx in range(x_pred.shape[1]):
+        #     # print(f"idx: {idx}, x_pred: {x_pred[:,idx]}")
+        #     predicted_state = x_pred[:,idx]
+        #     # Publish time history of the vehicle path
+        #     predicted_pose_msg = vector2PoseMsg('map', predicted_state[0:3], np.array([1.0, 0.0, 0.0, 0.0]))
+        #     predicted_path_msg.header = predicted_pose_msg.header
+        #     predicted_path_msg.poses.append(predicted_pose_msg)
+        # self.predicted_path_pub.publish(predicted_path_msg)
 
-        setpoint_path_msg = Path()
-        for idx in range(len(setpoints)):
-            setpoint = setpoints[idx]
-            # print(f"setpoint[{idx}]: {setpoint[0:3]}")
-            # Publish time history of the vehicle path
-            setpoint_pose_msg = vector2PoseMsg('map', setpoint[0:3], np.array([1.0, 0.0, 0.0, 0.0]))
-            setpoint_path_msg.header = setpoint_pose_msg.header
-            setpoint_path_msg.poses.append(setpoint_pose_msg)
-        self.reference_path_pub.publish(setpoint_path_msg)
+        # setpoint_path_msg = Path()
+        # for idx in range(len(setpoints)):
+        #     setpoint = setpoints[idx]
+        #     # print(f"setpoint[{idx}]: {setpoint[0:3]}")
+        #     # Publish time history of the vehicle path
+        #     setpoint_pose_msg = vector2PoseMsg('map', setpoint[0:3], np.array([1.0, 0.0, 0.0, 0.0]))
+        #     setpoint_path_msg.header = setpoint_pose_msg.header
+        #     setpoint_path_msg.poses.append(setpoint_pose_msg)
+        # self.reference_path_pub.publish(setpoint_path_msg)
 
         if self.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD:
             self.publish_rate_setpoint(u_pred)
@@ -527,7 +530,7 @@ class SpacecraftImpactMPC(Node):
             entire_path_msg = Path()
             for t in ts:
                 plani = interpolate_bezier(self.plan,t)
-                posei = vector2PoseMsg('map', np.array([plani['q'][0], plani['q'][1], -0.01]), np.array([1.0, 0.0, 0.0, 0.0]))
+                posei = vector2PoseMsg('world', np.array([plani['q'][0], plani['q'][1], -0.01]), np.array([1.0, 0.0, 0.0, 0.0]))
                 entire_path_msg.header = posei.header
                 entire_path_msg.poses.append(posei)
             self.get_logger().info('Publishing the entire path')

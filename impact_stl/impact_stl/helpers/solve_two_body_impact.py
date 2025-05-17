@@ -29,26 +29,30 @@ def invRot_cs(x):
 def solve_two_body_impact(xObjectI,dxObjectI,dxObjectI_post,
                           dx_init_guess=None,
                           theta_init_guess=None,
-                          verbose=False):
-    print("\n\nStarting two-body-impact construction") if verbose else None
+                          logger=None):
+    logger.info("\n\nStarting two-body-impact construction") if logger is not None else None
     # here a slightly smaller radius works better so that the impact is guaranteed
     # as we adapt the weights of the MPC, this is warranted.
     r_R = 0.20 # was 0.15
     r_O = 0.20 # was 0.15
     m_R = 16.8
     m_O = 16.8
-    e = 0.1 # c for sim
+    # e = 0.1 # c for sim
     # e = 0.4615 # c for hw, tire around one robot
     # e = (0.37+0.30+0.43+0.45)/4 # c for hw, tire around two robots
     # e = 0.25 # just testing on Thursday
+    e = 0.6 # c for hw, new bouncy rubber profile
 
-    print(f"xObjectI: {xObjectI}") if verbose else None
-    print(f"dxObjectI: {dxObjectI}") if verbose else None
-    print(f"dxObjectI_post: {dxObjectI_post}") if verbose else None
+    logger.info(f"xObjectI: {xObjectI}") if logger is not None else None
+    logger.info(f"dxObjectI: {dxObjectI}") if logger is not None else None
+    logger.info(f"dxObjectI_post: {dxObjectI_post}") if logger is not None else None
 
     ocp = cs.Opti()
 
     thetavar = ocp.variable(1)
+    # bound theta to [0,2pi]
+    ocp.subject_to(thetavar >= 0)
+    ocp.subject_to(thetavar <= 2*np.pi)
     x_R_G, x_O_G = ocp.variable(2,1), np.array([0.,0.])
     dx_R_G_pre, dx_O_G_pre = ocp.variable(2,1), dxObjectI
     dx_R_G_post, dx_O_G_post = ocp.variable(2,1), ocp.variable(2,1)# dxObjectI_post
@@ -57,12 +61,12 @@ def solve_two_body_impact(xObjectI,dxObjectI,dxObjectI_post,
 
     # set initial conditions 
     if theta_init_guess is not None:
-        print(f"theta_init_guess: {theta_init_guess} ({np.rad2deg(theta_init_guess)} deg)") if verbose else None
+        logger.info(f"theta_init_guess: {theta_init_guess} ({np.rad2deg(theta_init_guess)} deg)") if logger is not None else None
         ocp.set_initial(thetavar,theta_init_guess)
         ocp.set_initial(x_R_G[0],np.cos(theta_init_guess)*(r_R+r_O))
         ocp.set_initial(x_R_G[1],np.sin(theta_init_guess)*(r_R+r_O))
     if dx_init_guess is not None:
-        print(f"dx_init_guess: {dx_init_guess}") if verbose else None
+        logger.info(f"dx_init_guess: {dx_init_guess}") if logger is not None else None
         ocp.set_initial(dx_R_G_pre,dx_init_guess)
     if theta_init_guess is not None and dx_init_guess is not None:
         ocp.set_initial(dx_R_L_pre,Rot(theta_init_guess)@dx_init_guess)
@@ -106,17 +110,39 @@ def solve_two_body_impact(xObjectI,dxObjectI,dxObjectI_post,
     # ocp.subject_to(dx_O_G_post == dxObjectI_post)
 
     # set solver method
-    opts = {'ipopt.print_level': 0, 'print_time': 0, 'ipopt.sb': 'yes'}
+    opts = {'ipopt.print_level': 0, 
+            'ipopt.tol': 1e-2,
+            'ipopt.max_iter': 100,  
+            'print_time': 0, 
+            'ipopt.sb': 'yes'}
     ocp.solver('ipopt',opts)
+
+    # qp_opts = {
+    #     # 'max_iter': 5,
+    #     'error_on_fail': False,
+    #     'printLevel': "none",
+    #     # 'print_header': False,
+    #     # 'print_iter': False
+    # }
+    # sqp_opts = {
+    #     'max_iter': 10,
+    #     'qpsol': 'qpoases',
+    #     'convexify_margin': 1e-4,
+    #     'print_header': False,
+    #     'print_time': False,
+    #     'print_iteration': False,
+    #     'qpsol_options': qp_opts
+    # }
+    # ocp.solver('sqpmethod',sqp_opts)
 
     # solve
     t0 = time.time()
     sol = ocp.solve()
-    print(f"\n\nSolving 2bp took {time.time()-t0} seconds") if verbose else None
+    logger.info(f"\n\nSolving 2bp took {time.time()-t0} seconds") if logger is not None else None
 
     # parse solution
     thetaval = sol.value(thetavar)
-    print(f"theta: {thetaval} ({np.rad2deg(thetaval)} deg)") if verbose else None
+    logger.info(f"theta: {thetaval} ({np.rad2deg(thetaval)} deg)") if logger is not None else None
 
     theta_val = sol.value(thetavar)
     x_R_G_val, x_O_G_val = sol.value(x_R_G), np.array([0.,0.])
@@ -125,44 +151,48 @@ def solve_two_body_impact(xObjectI,dxObjectI,dxObjectI_post,
     dx_R_L_pre_val, dx_O_L_pre_val = sol.value(dx_R_L_pre), sol.value(dx_O_L_pre)
     dx_R_L_post_val, dx_O_L_post_val = sol.value(dx_R_L_post), sol.value(dx_O_L_post)
 
-    if verbose:
-        print(f"dx_R_L_pre: {dx_R_L_pre_val}")
-        print(f"dx_O_L_pre: {dx_O_L_pre_val}")
-        print(f"dx_R_G_pre: {dx_R_G_pre_val}")
-        print(f"dx_O_G_pre: {dx_O_G_pre_val}")
+    if logger is not None:
+        logger.info(f"dx_R_L_pre: {dx_R_L_pre_val}")
+        logger.info(f"dx_O_L_pre: {dx_O_L_pre_val}")
+        logger.info(f"dx_R_G_pre: {dx_R_G_pre_val}")
+        logger.info(f"dx_O_G_pre: {dx_O_G_pre_val}")
 
-        print(f"\ndx_R_L_post: {dx_R_L_post_val}")
-        print(f"dx_O_L_post: {dx_O_L_post_val}")
-        print(f"dx_R_G_post: {dx_R_G_post_val}")
-        print(f"dx_O_G_post: {dx_O_G_post_val} (desired: {dxObjectI_post})")
+        logger.info(f"\ndx_R_L_post: {dx_R_L_post_val}")
+        logger.info(f"dx_O_L_post: {dx_O_L_post_val}")
+        logger.info(f"dx_R_G_post: {dx_R_G_post_val}")
+        logger.info(f"dx_O_G_post: {dx_O_G_post_val} (desired: {dxObjectI_post})")
 
     # plotting
-    if verbose:
-        fig, axs = plt.subplots(1,2)
-        axs[0].plot(x_R_G_val[0],x_R_G_val[1],'ro')
-        axs[0].add_patch(patches.Circle(x_R_G_val,r_R,edgecolor='red',facecolor='none'))
-        axs[0].quiver(x_R_G_val[0],x_R_G_val[1],dx_R_G_pre_val[0],dx_R_G_pre_val[1],scale_units='xy',scale=2,color='red')
+    # if logger is not None:
+    #     fig, axs = plt.subplots(1,2)
+    #     axs[0].plot(x_R_G_val[0],x_R_G_val[1],'ro')
+    #     axs[0].add_patch(patches.Circle(x_R_G_val,r_R,edgecolor='red',facecolor='none'))
+    #     axs[0].quiver(x_R_G_val[0],x_R_G_val[1],dx_R_G_pre_val[0],dx_R_G_pre_val[1],scale_units='xy',scale=2,color='red')
 
-        axs[0].plot(x_O_G_val[0],x_O_G_val[1],'bo')
-        axs[0].add_patch(patches.Circle(x_O_G_val,r_O,edgecolor='blue',facecolor='none'))
-        axs[0].quiver(x_O_G_val[0],x_O_G_val[1],dx_O_G_pre_val[0],dx_O_G_pre_val[1],scale_units='xy',scale=2,color='blue')
+    #     axs[0].plot(x_O_G_val[0],x_O_G_val[1],'bo')
+    #     axs[0].add_patch(patches.Circle(x_O_G_val,r_O,edgecolor='blue',facecolor='none'))
+    #     axs[0].quiver(x_O_G_val[0],x_O_G_val[1],dx_O_G_pre_val[0],dx_O_G_pre_val[1],scale_units='xy',scale=2,color='blue')
 
-        axs[0].set_aspect('equal')
-        axs[0].grid(True)
-        axs[0].set_title('pre-impact')
+    #     axs[0].set_aspect('equal')
+    #     axs[0].grid(True)
+    #     axs[0].set_title('pre-impact')
 
-        axs[1].plot(x_R_G_val[0],x_R_G_val[1],'ro')
-        axs[1].add_patch(patches.Circle(x_R_G_val,r_R,edgecolor='red',facecolor='none'))
-        axs[1].quiver(x_R_G_val[0],x_R_G_val[1],dx_R_G_post_val[0],dx_R_G_post_val[1],scale_units='xy',scale=2,color='red')
+    #     axs[1].plot(x_R_G_val[0],x_R_G_val[1],'ro')
+    #     axs[1].add_patch(patches.Circle(x_R_G_val,r_R,edgecolor='red',facecolor='none'))
+    #     axs[1].quiver(x_R_G_val[0],x_R_G_val[1],dx_R_G_post_val[0],dx_R_G_post_val[1],scale_units='xy',scale=2,color='red')
 
-        axs[1].plot(x_O_G_val[0],x_O_G_val[1],'bo')
-        axs[1].add_patch(patches.Circle(x_O_G_val,r_O,edgecolor='blue',facecolor='none'))
-        axs[1].quiver(x_O_G_val[0],x_O_G_val[1],dx_O_G_post_val[0],dx_O_G_post_val[1],scale_units='xy',scale=2,color='blue')
+    #     axs[1].plot(x_O_G_val[0],x_O_G_val[1],'bo')
+    #     axs[1].add_patch(patches.Circle(x_O_G_val,r_O,edgecolor='blue',facecolor='none'))
+    #     axs[1].quiver(x_O_G_val[0],x_O_G_val[1],dx_O_G_post_val[0],dx_O_G_post_val[1],scale_units='xy',scale=2,color='blue')
 
-        axs[1].set_aspect('equal')
-        axs[1].grid(True)
-        axs[1].set_title('post-impact')
-        plt.savefig("/home/px4space/space_ws/p_two_body_impact.png")
+    #     axs[1].set_aspect('equal')
+    #     axs[1].grid(True)
+    #     axs[1].set_title('post-impact')
+        
+    #     # get a random integer between 0 and 100
+    #     random_int = np.random.randint(0, 100)
+    #     logger.info(f"random_int: {random_int}")
+    #     plt.savefig(f"/home/none/space_ws/p_two_body_impact_{random_int}.png")
 
     xI = x_R_G_val + xObjectI
     dxI = dx_R_G_pre_val

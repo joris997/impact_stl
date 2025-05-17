@@ -6,7 +6,7 @@ from Spec import Spec, Pred
 import copy
 
 class World():
-    def __init__(self,robustness_type="spatial",specification="catch_throw"):
+    def __init__(self,robustness_type="spatial",specification="throw_and_catch"):
         self.robustness_type = robustness_type
         self.specification = specification
 

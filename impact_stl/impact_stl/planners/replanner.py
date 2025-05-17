@@ -10,6 +10,7 @@ from rclpy.node import Node
 from rclpy.clock import Clock
 from impact_stl.helpers.qos_profiles import NORMAL_QOS, RELIABLE_QOS
 import os
+import cvxpy as cp
 
 from px4_msgs.msg import VehicleAngularVelocity
 from px4_msgs.msg import VehicleAngularVelocity
@@ -21,7 +22,7 @@ from my_msgs.msg import StampedBool
 from ament_index_python.packages import get_package_share_directory
 
 from impact_stl.planners.main_planner import MinimalClientAsync
-from impact_stl.helpers.beziers import get_derivative_control_points_gurobi
+from impact_stl.helpers.beziers import get_derivative_control_points_gurobi, get_derivative_control_points_cvxpy
 from impact_stl.helpers.read_write_plan import csv_to_plan, plan_to_csv
 from impact_stl.helpers.solve_two_body_impact import solve_two_body_impact
 from impact_stl.helpers.plot_rvars_hvars import plot_rvars_hvars
@@ -34,8 +35,8 @@ class RePlanner(Node):
         self.minimal_client = MinimalClientAsync()
 
         # the object is an actual robot, so it has a namespace
-        self.robot_name = self.get_namespace()
-        self.scenario_name = self.declare_parameter('scenario_name', 'catch_throw').value
+        self.robot_name = self.get_namespace() if self.get_namespace() != '/' else 'pop'
+        self.scenario_name = self.declare_parameter('scenario_name', 'throw_and_catch_exp').value
         self.object_ns = self.declare_parameter('object_ns', '/pop').value
         self.gz = self.declare_parameter('gz', True).value
         print(f"object_ns: {self.object_ns}")
@@ -118,7 +119,8 @@ class RePlanner(Node):
         self.object_local_velocity = np.array([0.0, 0.0, 0.0])
         # keep track of a stack of velocities to interpolate
         #TODO: if this is linked to an EKF we should use that, but the EKF needs to consider impacts
-        stack_size = 100 # was 30
+        stack_size = 10 # was 30
+        self.planner_time = 0.
         self.object_local_velocity_stack = np.zeros((3,stack_size))
         self.object_local_position_stack = np.zeros((3,stack_size))
         self.object_local_position_time_stack = np.zeros((1,stack_size))
@@ -189,7 +191,7 @@ class RePlanner(Node):
         self.get_logger().info('Recomputing local plan for pre- and post- impact Bezier')
         self.planner_time = msg.t
         self.get_logger().info(f"planner_time: {self.planner_time}")
-        self.solve_replan()
+        self.solve_replan_cvxpy()
         self.get_logger().info("Local plan recomputed")
 
         if msg.data:
@@ -303,10 +305,17 @@ class RePlanner(Node):
         theta_init = np.arctan2(dxI_init[1],dxI_init[0]) + np.pi
         self.get_logger().info(f"init guesses, dxI_init: {dxI_init}, theta_init: {theta_init}") if self.verbose else None
         # then solve the two-body impact problem to obtain 
-        xI, dxI, xI_post, dxI_post = solve_two_body_impact(xObjectI,dxObjectI,dxObjectI_post,
-                                                           dx_init_guess=dxI_init,
-                                                           theta_init_guess=theta_init,
-                                                           verbose=True)
+        # xI, dxI, xI_post, dxI_post = solve_two_body_impact(xObjectI,dxObjectI,dxObjectI_post,
+        #                                                    dx_init_guess=dxI_init,
+        #                                                    theta_init_guess=theta_init,
+        #                                                    logger=self.get_logger())
+        # or we can try to use the simple solution with theta_init and dxI_init
+        # xI = xObjectI + 0.4*np.array([np.cos(theta_init),np.sin(theta_init)])
+        dxI = -(1/0.99)*(dxObjectI - dxObjectI_post)
+        theta_close = np.arctan2(dxI[1],dxI[0]) + np.pi
+        xI = xObjectI + 0.40*np.array([np.cos(theta_close),np.sin(theta_close)])
+        xI_post = xI
+        dxI_post = dxObjectI
         self.get_logger().info(f"xI: {xI}, dxI: {dxI}, xI_post: {xI_post}, dxI_post: {dxI_post}") if self.verbose else None
         self.get_logger().info(f"dt after 2bi {time.time()-t_start}") if self.verbose else None
 
@@ -335,13 +344,13 @@ class RePlanner(Node):
         #             ocp.subject_to(drvars[idx][d,i] >= -0.35*dhvars[idx][0,i])
 
         # # stay within workspace bounds
-        # # #! enable this if on hardware
-        # for idx in range(len(rvars)):
-        #     for cp in range(rvars[idx].shape[1]):
-        #         ocp.subject_to(rvars[idx][0,cp] >= 0 + 0.3)
-        #         ocp.subject_to(rvars[idx][0,cp] <= 4 - 0.3)
-        #         ocp.subject_to(rvars[idx][1,cp] >= -1.75 + 0.3)
-        #         ocp.subject_to(rvars[idx][1,cp] <=  1.75 - 0.3)
+        # #! enable this if on hardware
+        for idx in range(len(rvars)):
+            for cp in range(rvars[idx].shape[1]):
+                ocp.subject_to(rvars[idx][0,cp] >= 0 + 0.3)
+                ocp.subject_to(rvars[idx][0,cp] <= 4 - 0.3)
+                ocp.subject_to(rvars[idx][1,cp] >= -1.75 + 0.3)
+                ocp.subject_to(rvars[idx][1,cp] <=  1.75 - 0.3)
 
         # initial state, now we use the most recent robot state
         x0 = self.robot_local_position[0:2]
@@ -361,14 +370,24 @@ class RePlanner(Node):
         # this is equivalent to the impact constraints, since we've already
         # solved the two-body impact problem
         ocp.subject_to(hvars[0][:,-1] == tI)
-        hard = False
+        hard = True
         if hard:
-            ocp.subject_to(rvars[0][:,-1] == xI)
-            ocp.subject_to(rvars[-1][:,0] == xI_post)
-            ocp.subject_to(drvars[0][:,-1] == dxI*dhvars[0][:,-1])
-            ocp.subject_to(drvars[-1][:,0] == dxI_post*dhvars[-1][:,0])
-            # # for a better approach for catching, we can also add this constraint to the -2nd point
-            # ocp.subject_to(drvars[0][:,-2] == dxI*dhvars[0][:,-2])
+            # ocp.subject_to(rvars[0][:,-1] == xI)
+            # ocp.subject_to(rvars[-1][:,0] == xI_post)
+            # ocp.subject_to(drvars[0][:,-1] == dxI*dhvars[0][:,-1])
+            # ocp.subject_to(drvars[-1][:,0] == dxI_post*dhvars[-1][:,0])
+
+            # relaxed but linear
+            delta = ocp.variable()
+            ocp.subject_to(delta >= 0)
+            ocp.subject_to(rvars[0][:,-1] <= xI+delta)
+            ocp.subject_to(rvars[0][:,-1] >= xI-delta)
+            ocp.subject_to(rvars[-1][:,0] <= xI_post+delta)
+            ocp.subject_to(rvars[-1][:,0] >= xI_post-delta)
+            ocp.subject_to(drvars[0][:,-1] <= dxI*dhvars[0][:,-1]+delta)
+            ocp.subject_to(drvars[0][:,-1] >= dxI*dhvars[0][:,-1]-delta)
+            ocp.subject_to(drvars[-1][:,0] <= dxI_post*dhvars[-1][:,0]+delta)
+            ocp.subject_to(drvars[-1][:,0] >= dxI_post*dhvars[-1][:,0]-delta)
         else:
             # soft version
             delta_r_pre, delta_r_post, delta_dr_pre, delta_dr_post = ocp.variable(), ocp.variable(), ocp.variable(), ocp.variable()
@@ -387,12 +406,37 @@ class RePlanner(Node):
 
         if not hard:
             cost += 1e4*(delta_r_pre + delta_r_post + delta_dr_pre + delta_dr_post)
+        else:
+            cost += 1e4*delta
         ocp.minimize(cost)
         # self.get_logger().info("added casadi cost")
 
         # set solver method
-        opts = {'ipopt.print_level': 0, 'print_time': 0, 'ipopt.sb': 'yes'}
-        ocp.solver('ipopt',opts)
+        # opts = {'ipopt.print_level': 0,
+        #         'ipopt.tol': 1e-2,
+        #         'ipopt.max_iter': 100,
+        #         'print_time': 0, 'ipopt.sb': 'no'}
+        # ocp.solver('ipopt',opts)
+        
+        # ocp.solver('qpoases')
+
+        qp_opts = {
+            # 'max_iter': 5,
+            'error_on_fail': False,
+            'printLevel': "none",
+            # 'print_header': False,
+            # 'print_iter': False
+        }
+        sqp_opts = {
+            'max_iter': 10,
+            'qpsol': 'qpoases',
+            'convexify_margin': 1e-4,
+            'print_header': False,
+            'print_time': False,
+            'print_iteration': False,
+            'qpsol_options': qp_opts
+        }
+        ocp.solver('sqpmethod', sqp_opts)
 
         self.get_logger().info(f"dt after casadi setup {time.time()-t_start}")
 
@@ -427,13 +471,164 @@ class RePlanner(Node):
         write_hvars = [hvars[0],hvars[1]]
         write_ids = ['pre','post']
         write_other_names = [self.object_ns[1:],self.object_ns[1:]]
-        plan_to_csv(write_rvars,write_hvars,write_ids,write_other_names,
+        home_dir = os.path.expanduser("~")
+        replans_path = os.path.join(home_dir, "space_ws", "replans")
+        plan_to_csv(write_rvars, write_hvars, write_ids, write_other_names,
                     robot_name=f"{self.robot_name}_{self.Ncalls}",
                     scenario_name=self.scenario_name,
-                    path="/home/px4space/space_ws/replans")
+                    path=replans_path)
 
         self.Ncalls += 1
         self.get_logger().info(f"The whole ordeal took {time.time()-t_start} seconds")
+
+
+    def solve_replan_cvxpy(self):
+        t_start = time.time()
+        self.get_logger().info("Creating CVXPY replanner problem")
+        
+        n_cp = 5
+        rvars = [cp.Variable((2, n_cp)) for _ in range(2)]
+        hvars = [cp.Variable((1, n_cp)) for _ in range(2)]
+        
+        # Find index of pre-impact segment
+        pre_idxs = [i for i, x in enumerate(self.idvars) if x == 'pre']
+        pre_tIs = [self.hvars[idx][0, -1] for idx in pre_idxs]
+        pre_idx = next((pre_idxs[i] for i, tI in enumerate(pre_tIs) if tI > self.planner_time), len(pre_tIs)-1)
+
+        t0 = self.hvars[pre_idx][0,0]
+        tI = self.hvars[pre_idx][0,-1]
+        tf = self.hvars[pre_idx+1][0,-1]
+
+        xObjectI, dxObjectI, dxObjectI_post = self.compute_object_pre_post_state(pre_idx, tI)
+        dxI_init = np.array([self.drvars[pre_idx][0,-1]/self.dhvars[pre_idx][0,-1],
+                            self.drvars[pre_idx][1,-1]/self.dhvars[pre_idx][0,-1]])
+        theta_init = np.arctan2(dxI_init[1], dxI_init[0]) + np.pi
+
+        dxI = -(1/0.8)*(dxObjectI - dxObjectI_post)
+        theta_close = np.arctan2(dxI[1], dxI[0]) + np.pi
+        xI = xObjectI + 0.40*np.array([np.cos(theta_close), np.sin(theta_close)])
+        xI_post = xI
+        dxI_post = dxObjectI
+
+        constraints = []
+
+        # Derivative control points
+        drvars, ddrvars = [], []
+        for r in rvars:
+            drvars_r, drv_constraints_r = get_derivative_control_points_cvxpy(r)
+            drvars.append(drvars_r)
+            constraints += drv_constraints_r
+
+            ddrvars_r, ddrv_constraints_r = get_derivative_control_points_cvxpy(r, der_order=2)
+            ddrvars.append(ddrvars_r)
+            constraints += drv_constraints_r
+        dhvars, ddhvars = [], []
+        for h in hvars:
+            dhvars_h, dhv_constraints_h = get_derivative_control_points_cvxpy(h)
+            dhvars.append(dhvars_h)
+            constraints += dhv_constraints_h
+
+            ddhvars_h, ddhv_constraints_h = get_derivative_control_points_cvxpy(h, der_order=2)
+            dhvars.append(ddhvars_h)
+            constraints += ddhv_constraints_h        
+
+        # Ensure increasing time
+        for dh in dhvars:
+            for i in range(dh.shape[1]):
+                constraints.append(dh[0, i] >= 1e-1)
+
+        # Continuity constraints
+        constraints += [
+            rvars[0][:, -1] == rvars[-1][:, 0],
+            hvars[0][:, -1] == hvars[-1][:, 0],
+        ]
+
+        # Workspace bounds
+        for rv in rvars:
+            for i in range(rv.shape[1]):
+                constraints += [
+                    rv[0, i] >= 0.3,
+                    rv[0, i] <= 3.7,
+                    rv[1, i] >= -1.45,
+                    rv[1, i] <= 1.45
+                ]
+
+        # Initial state
+        x0 = self.robot_local_position[0:2]
+        dx0 = self.robot_local_velocity[0:2]
+        constraints += [
+            rvars[0][:, 0] == x0,
+            hvars[0][:, 0] == t0,
+            drvars[0][:, 0] == dx0 * dhvars[0][:, 0]
+        ]
+
+        # Final state
+        constraints += [
+            rvars[-1][:, -1] == self.rvars[pre_idx+1][0:2, -1],
+            hvars[-1][:, -1] == self.hvars[pre_idx+1][0, -1],
+            drvars[-1][:, -1] == self.drvars[pre_idx+1][0:2, -1],
+            dhvars[-1][:, -1] == self.dhvars[pre_idx+1][0, -1]
+        ]
+
+        # Impact condition
+        constraints.append(hvars[0][:, -1] == tI)
+
+        # Impact relaxation via delta
+        delta = cp.Variable(nonneg=True)
+        constraints += [
+            rvars[0][:, -1] <= xI + delta,
+            rvars[0][:, -1] >= xI - delta,
+            rvars[-1][:, 0] <= xI_post + delta,
+            rvars[-1][:, 0] >= xI_post - delta,
+            drvars[0][:, -1] <= dxI * dhvars[0][:, -1] + delta,
+            drvars[0][:, -1] >= dxI * dhvars[0][:, -1] - delta,
+            drvars[-1][:, 0] <= dxI_post * dhvars[-1][:, 0] + delta,
+            drvars[-1][:, 0] >= dxI_post * dhvars[-1][:, 0] - delta
+        ]
+
+        # Cost: quadratic in accelerations
+        cost = 0
+        for idx in range(len(ddhvars)):
+            for i in range(ddhvars[idx].shape[1]):
+                for d in range(2):
+                    cost += cp.square(ddrvars[idx][d, i])
+                cost += cp.square(ddhvars[idx][0, i])
+        cost += 1e4 * delta
+
+        # Solve QP
+        prob = cp.Problem(cp.Minimize(cost), constraints)
+        prob.solve(solver=cp.OSQP, verbose=False)  # ECOS or OSQP for QP
+
+        self.get_logger().info(f"CVXPY solve time: {time.time()-t_start:.3f}s")
+        self.get_logger().info(f"delta: {delta.value:.3f}")
+
+        # Extract solution
+        rvars = [rvar.value for rvar in rvars]
+        hvars = [hvar.value for hvar in hvars]
+        # Pad rvars with an extra row of zeros (because there is orientation)
+        rvars = [np.vstack([rvar, np.zeros((1, rvar.shape[1]))]) for rvar in rvars]
+        # Construct replanned rvars, hvars, idvars, other_names
+        self.re_rvars = self.rvars.copy()
+        self.re_hvars = self.hvars.copy()
+        self.re_idvars = self.idvars.copy()
+        self.re_other_names = self.other_names.copy()
+        self.re_rvars[pre_idx] = rvars[0]
+        self.re_rvars[pre_idx + 1] = rvars[1]
+        self.re_hvars[pre_idx] = hvars[0]
+        self.re_hvars[pre_idx + 1] = hvars[1]
+        # Write replanned data to CSV
+        write_rvars = [rvars[0], rvars[1]]
+        write_hvars = [hvars[0], hvars[1]]
+        write_ids = ['pre', 'post']
+        write_other_names = [self.object_ns[1:], self.object_ns[1:]]
+        home_dir = os.path.expanduser("~")
+        replans_path = os.path.join(home_dir, "space_ws", "replans")
+        plan_to_csv(write_rvars, write_hvars, write_ids, write_other_names,
+                    robot_name=f"{self.robot_name}_{self.Ncalls}",
+                    scenario_name=self.scenario_name,
+                    path=replans_path)
+        self.Ncalls += 1
+        self.get_logger().info(f"The whole ordeal took {time.time()-t_start:.3f}s")
 
 
 def main(args=None):

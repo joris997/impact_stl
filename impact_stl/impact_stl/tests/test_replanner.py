@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 
+# from impact_stl.impact_stl.impact_stl.planners.replanner import RePlanner
 from impact_stl.planners.replanner import RePlanner
 from impact_stl.helpers.plot_rvars_hvars import plot_rvars_hvars
 import numpy as np
@@ -9,9 +10,9 @@ import matplotlib.pyplot as plt
 class TestRePlanner(Node):
     def __init__(self):
         super().__init__('test_re_planner')
-        replanner = RePlanner(ns='/snap')
+        replanner = RePlanner()
         plot_rvars_hvars(replanner.rvars,replanner.hvars,
-                         path="/home/px4space/space_ws/",fn="pre.png")
+                         path="/home/none/space_ws/",fn="pre.png")
 
         replanner.object_local_position = np.array([3.0,0,0])
         #TODO: fix that this works with velocities of the object
@@ -23,7 +24,7 @@ class TestRePlanner(Node):
         replanner.solve_replan()
 
         plot_rvars_hvars(replanner.re_rvars,replanner.re_hvars,
-                         path="/home/px4space/space_ws/",fn="post.png")
+                         path="/home/none/space_ws/",fn="post.png")
 
 def main(args=None):
     rclpy.init(args=args)

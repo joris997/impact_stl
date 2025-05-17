@@ -116,8 +116,21 @@ class SR_Impact_STL:
         # self._obstacle_collision_constraints()    # can now do this as an STL spec!!
         self._stl_constraints()
 
-        self._robot_robot_collision_constraints()
-        self._object_object_collision_constraints()
+        # self._robot_robot_collision_constraints()
+        # self._object_object_collision_constraints()
+
+        # custom constraints for the video
+        for r in range(self.nrobots):
+            if self.robots[r].name == "crackle":
+                # constrain all x points to be less than 2
+                for bz in range(self.robots_nbzs[r]):
+                    for cp in range(self.robots_ncp[r]):
+                        self.prog.addConstr(self.robots_rvar[r][bz][0,cp] <= 2, name=f"crackle_x_{bz}_{cp}")
+            if self.robots[r].name == "pop":
+                # constrain all x points to be greater than 2
+                for bz in range(self.robots_nbzs[r]):
+                    for cp in range(self.robots_ncp[r]):
+                        self.prog.addConstr(self.robots_rvar[r][bz][0,cp] >= 2, name=f"pop_x_{bz}_{cp}")
 
         self._set_cost()
 
@@ -139,13 +152,13 @@ class SR_Impact_STL:
 
 
     def _set_cost(self):
-        # weights for throw_and_catch
-        weight_L = 0
-        weight_V = 0
-        weight_A = 0.51 
-        weight_absA = 0
-        weight_rho = 100000 #100000
-        weight_N_impacts = 10
+        # # weights for throw_and_catch
+        # weight_L = 0
+        # weight_V = 0
+        # weight_A = 0.51 
+        # weight_absA = 0
+        # weight_rho = 100000 #100000
+        # weight_N_impacts = 10
 
         # # weights for lab_test_2
         # weight_L = 0
@@ -155,13 +168,13 @@ class SR_Impact_STL:
         # weight_rho = 1000 #100000
         # weight_N_impacts = 1
 
-        # # weights for complex stl spec
-        # weight_L = 0
-        # weight_V = 0
-        # weight_A = 0.000001
-        # weight_absA = 0
-        # weight_rho = 1000000 #100000
-        # weight_N_impacts = 0
+        # weights for complex stl spec
+        weight_L = 0
+        weight_V = 0
+        weight_A = 0.1
+        weight_absA = 0
+        weight_rho = 10000 #100000
+        weight_N_impacts = 0
         
         ### path length cost
         if weight_L > 0:
@@ -846,11 +859,15 @@ class SR_Impact_STL:
             # append a row of zeros to robots_rsol for the theta dimension which we don't plan for
             robots_rsol = [np.vstack((self.robots_rsol[r][bz],np.zeros((1,self.robots_ncp[r])))) for bz in range(self.robots_nbzs[r])]
             plan_to_csv(robots_rsol,self.robots_hsol[r],self.robots[r].ids,self.robots[r].other_names,
-                        self.robots[r].name,'impact_stl/planner/plans/')
+                        scenario_name=self.world.specification,
+                        robot_name=self.robots[r].name,
+                        path='./impact_stl/impact_stl/planner/plans/')
         for o in range(self.nobjects):
             objects_rsol = [np.vstack((self.objects_rsol[o][bz],np.zeros((1,self.objects_ncp[o])))) for bz in range(self.objects_nbzs[o])]
             plan_to_csv(objects_rsol,self.objects_hsol[o],self.objects[o].ids,self.objects[o].other_names,
-                        self.objects[o].name,'impact_stl/planner/plans/')
+                        scenario_name=self.world.specification,
+                        robot_name=self.objects[o].name,
+                        path='./impact_stl/impact_stl/planner/plans/')
             
     def evaluate_t(self,t):
         t_array_robots = [np.array([self.robots_hsol[r][bzr][0,0] for bzr in range(self.robots_nbzs[r])]) for r in range(self.nrobots)]
@@ -1018,8 +1035,8 @@ class SR_Impact_STL:
         
         fig.tight_layout()
         
-        plt.savefig("impact_stl/planner/figures/plot.svg")
-        plt.savefig("impact_stl/planner/figures/plot.png")
+        plt.savefig("./impact_stl/impact_stl/planner/figures/plot.svg")
+        plt.savefig("./impact_stl/impact_stl/planner/figures/plot.png")
 
         
     def animate(self):
@@ -1030,7 +1047,7 @@ class SR_Impact_STL:
         self.ax_anim = plt.axes()
         anim = animation.FuncAnimation(self.fig_anim,self._animate_update,
                                         frames=Neval,interval=self.world.spec.tf/Neval*1e6*2)
-        anim.save("impact_stl/planner/figures/animation.mp4",writer="ffmpeg", fps=Neval/self.world.spec.tf)
+        anim.save("./impact_stl/impact_stl/planner/figures/animation.mp4",writer="ffmpeg", fps=Neval/self.world.spec.tf)
 
     def _animate_update(self,i):
         t = self.t_range[i]
@@ -1170,9 +1187,9 @@ class SR_Impact_STL:
         
         fig.tight_layout()
         
-        plt.savefig("impact_stl/planner/figures/plot.svg")
-        plt.savefig("impact_stl/planner/figures/plot.png")
+        plt.savefig("./impact_stl/impact_stl/planner/figures/plot.svg")
+        plt.savefig("./impact_stl/impact_stl/planner/figures/plot.png")
 
         # save to_save object
-        with open('impact_stl/planner/figures/to_save.pkl', 'wb') as f:
+        with open('./impact_stl/impact_stl/planner/figures/to_save.pkl', 'wb') as f:
             pickle.dump(to_save, f)

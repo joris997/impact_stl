@@ -33,7 +33,7 @@ class ImpactDetector(Node):
         self.publisher_impact = self.create_publisher(StampedBool, 'impact_stl/impact_detected', RELIABLE_QOS)
 
         self.vehicle_acceleration = np.array([0.0, 0.0, 0.0])
-        self.vehicle_past_accelerations = np.zeros((3,))
+        self.vehicle_past_accelerations = np.zeros((1,))
 
         # get the current time
         self.t_start = Clock().now().nanoseconds/1000

@@ -1,6 +1,7 @@
 import numpy as np
 import scipy as sp
 from scipy import special, optimize
+import cvxpy as cp
 
 
 def bernstein_poly(i,n,t):
@@ -89,3 +90,28 @@ def get_derivative_control_points_parallel_gurobi(control_points,der_order=1):
         return get_derivative_control_points_parallel_gurobi(dcontrol_points,der_order-1)
     else:
         return dcontrol_points
+    
+
+def get_derivative_control_points_cvxpy(control_points, der_order=1):
+    # "control_points": [dim, n_points] CVXPY variable or expression
+    # "der_order": positive integer
+    assert der_order > 0
+    dim, n = control_points.shape
+    order = n - 1
+
+    if order == 0:
+        # No derivative possible
+        return cp.Constant(np.zeros((dim, 1))), []
+
+    dcontrol_points = cp.Variable((dim, order))
+    constraints = []
+
+    for i in range(order):
+        constraints.append(
+            dcontrol_points[:, i] == order * (control_points[:, i + 1] - control_points[:, i])
+        )
+
+    if der_order > 1:
+        return get_derivative_control_points_cvxpy(dcontrol_points, der_order - 1)
+    else:
+        return dcontrol_points, constraints

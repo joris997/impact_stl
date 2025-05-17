@@ -7,21 +7,26 @@ Panels:
         - /Global Options1
         - /Status1
         - /Pose1
-        - /Marker1
-        - /Marker1/Topic1
         - /Path1
         - /Path2
-        - /InteractiveMarkers1
-        - /Marker2
+        - /Path3
         - /Marker2/Topic1
-        - /Path9
+        - /Path4
+        - /Path5
+        - /Path6
+        - /Path7
         - /Path10
         - /Path11
         - /Path12
         - /TF1
         - /TF1/Frames1
+        - /Camera1
+        - /Camera1/Topic1
+        - /Camera2
+        - /Marker14
+        - /Marker15
       Splitter Ratio: 0.5
-    Tree Height: 140
+    Tree Height: 662
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -143,7 +148,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /snap/push_stl/predicted_path
+        Value: /snap/impact_stl/predicted_path
       Value: true
     - Class: rviz_default_plugins/InteractiveMarkers
       Enable Transparency: true
@@ -180,10 +185,10 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /snap/push_stl/reference_path
+        Value: /snap/impact_stl/reference_path
       Value: true
     - Class: rviz_default_plugins/Marker
-      Enabled: true
+      Enabled: false
       Name: Marker
       Namespaces:
         {}
@@ -194,7 +199,7 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /snap/px4_visualizer/vehicle_radius
-      Value: true
+      Value: false
     - Alpha: 1
       Axes Length: 0.05000000074505806
       Axes Radius: 0.004999999888241291
@@ -259,7 +264,7 @@ Visualization Manager:
     - Alpha: 1
       Buffer Length: 1
       Class: rviz_default_plugins/Path
-      Color: 25; 0; 255
+      Color: 255; 0; 191
       Enabled: true
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
@@ -282,7 +287,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /crackle/push_stl/predicted_path
+        Value: /crackle/impact_stl/predicted_path
       Value: true
     - Class: rviz_default_plugins/InteractiveMarkers
       Enable Transparency: true
@@ -296,7 +301,7 @@ Visualization Manager:
     - Alpha: 1
       Buffer Length: 1
       Class: rviz_default_plugins/Path
-      Color: 25; 100; 255
+      Color: 128; 0; 255
       Enabled: true
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
@@ -319,7 +324,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /crackle/push_stl/reference_path
+        Value: /crackle/impact_stl/reference_path
       Value: true
     - Class: rviz_default_plugins/Marker
       Enabled: false
@@ -398,7 +403,7 @@ Visualization Manager:
     - Alpha: 1
       Buffer Length: 1
       Class: rviz_default_plugins/Path
-      Color: 25; 0; 255
+      Color: 255; 0; 191
       Enabled: true
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
@@ -421,7 +426,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /pop/push_stl/predicted_path
+        Value: /pop/impact_stl/predicted_path
       Value: true
     - Class: rviz_default_plugins/InteractiveMarkers
       Enable Transparency: true
@@ -435,7 +440,7 @@ Visualization Manager:
     - Alpha: 1
       Buffer Length: 1
       Class: rviz_default_plugins/Path
-      Color: 25; 100; 255
+      Color: 128; 0; 255
       Enabled: true
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
@@ -458,10 +463,10 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /pop/push_stl/reference_path
+        Value: /pop/impact_stl/reference_path
       Value: true
     - Class: rviz_default_plugins/Marker
-      Enabled: true
+      Enabled: false
       Name: Marker
       Namespaces:
         {}
@@ -472,8 +477,8 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /pop/px4_visualizer/vehicle_radius
-      Value: true
-    - Alpha: 50
+      Value: false
+    - Alpha: 1
       Buffer Length: 1
       Class: rviz_default_plugins/Path
       Color: 249; 240; 107
@@ -499,9 +504,9 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /snap/push_stl/entire_path
+        Value: /snap/impact_stl/entire_path
       Value: true
-    - Alpha: 50
+    - Alpha: 1
       Buffer Length: 1
       Class: rviz_default_plugins/Path
       Color: 249; 240; 107
@@ -527,12 +532,12 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /crackle/push_stl/entire_path
+        Value: /crackle/impact_stl/entire_path
       Value: true
-    - Alpha: 50
+    - Alpha: 1
       Buffer Length: 1
       Class: rviz_default_plugins/Path
-      Color: 229; 165; 10
+      Color: 249; 240; 107
       Enabled: true
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
@@ -555,10 +560,10 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /pop/push_stl/entire_path
+        Value: /pop/impact_stl/entire_path
       Value: true
     - Class: rviz_default_plugins/Marker
-      Enabled: true
+      Enabled: false
       Name: Marker
       Namespaces:
         {}
@@ -569,7 +574,7 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /pop/px4_visualizer/vehicle_force
-      Value: true
+      Value: false
     - Class: rviz_default_plugins/Marker
       Enabled: false
       Name: Marker
@@ -584,7 +589,7 @@ Visualization Manager:
         Value: /crackle/px4_visualizer/vehicle_force
       Value: false
     - Class: rviz_default_plugins/Marker
-      Enabled: true
+      Enabled: false
       Name: Marker
       Namespaces:
         {}
@@ -595,12 +600,12 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /snap/px4_visualizer/vehicle_force
-      Value: true
+      Value: false
     - Class: rviz_default_plugins/Marker
       Enabled: true
       Name: Marker
       Namespaces:
-        particles: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -613,7 +618,7 @@ Visualization Manager:
       Enabled: true
       Name: Marker
       Namespaces:
-        rectangles: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -626,7 +631,7 @@ Visualization Manager:
       Enabled: true
       Name: Marker
       Namespaces:
-        goal: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -639,7 +644,7 @@ Visualization Manager:
       Enabled: true
       Name: Marker
       Namespaces:
-        mean: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -663,42 +668,19 @@ Visualization Manager:
         Value: /camera/camera/color/image_raw
       Value: false
     - Class: rviz_default_plugins/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        camera_color_frame:
-          Value: false
-        camera_color_optical_frame:
-          Value: false
-        camera_depth_frame:
-          Value: false
-        camera_depth_optical_frame:
-          Value: false
-        camera_link:
-          Value: false
-        inertial:
-          Value: false
-        world:
-          Value: false
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: false
       Tree:
-        world:
-          camera_link:
-            camera_color_frame:
-              camera_color_optical_frame:
-                {}
-            camera_depth_frame:
-              camera_depth_optical_frame:
-                {}
-          inertial:
-            {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Class: rviz_default_plugins/Camera
       Enabled: true
       Far Plane Distance: 100
@@ -724,7 +706,7 @@ Visualization Manager:
         Value: true
       Zoom Factor: 1
     - Class: rviz_default_plugins/Camera
-      Enabled: true
+      Enabled: false
       Far Plane Distance: 100
       Image Rendering: background and overlay
       Name: Camera
@@ -734,8 +716,8 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /camera/camera/color/image_raw
-      Value: true
+        Value: /camera/camera/color/image_raw/compressed
+      Value: false
       Visibility:
         Camera: true
         Grid: true
@@ -747,6 +729,58 @@ Visualization Manager:
         TF: true
         Value: true
       Zoom Factor: 1
+    - Class: rviz_default_plugins/Marker
+      Enabled: true
+      Name: Marker
+      Namespaces:
+        rectangles: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /regions/goal_region
+      Value: true
+    - Class: rviz_default_plugins/Marker
+      Enabled: true
+      Name: Marker
+      Namespaces:
+        rectangles: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /regions/roi_region_1
+      Value: true
+    - Class: rviz_default_plugins/Marker
+      Enabled: true
+      Name: Marker
+      Namespaces:
+        rectangles: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /regions/roi_region_2
+      Value: true
+    - Class: rviz_default_plugins/Marker
+      Enabled: true
+      Name: Marker
+      Namespaces:
+        rectangles: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /regions/roi_region_3
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 0; 0; 0
@@ -793,7 +827,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 4.716864585876465
+      Distance: 21.1639404296875
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -808,10 +842,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.35979723930358887
+      Pitch: 1.1497970819473267
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.795419692993164
+      Yaw: 6.110422611236572
     Saved: ~
 Window Geometry:
   Camera:
@@ -823,7 +857,7 @@ Window Geometry:
   Hide Right Dock: true
   Image:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000005ca00000416fc020000000afb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afc0000003d000000c9000000c900fffffffa000000010100000002fb0000000c00430061006d0065007200610000000000ffffffff0000006900fffffffb000000100044006900730070006c0061007900730100000000000002ae0000015600fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d0061006700650000000383000000d00000002800fffffffb0000000c00430061006d006500720061010000010c000003470000002800ffffff000000010000010f000002f4fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d000002f4000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004420000003efc0100000002fb0000000800540069006d00650100000000000004420000000000000000fb0000000800540069006d006501000000000000045000000000000000000000016a0000041600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000028700000416fc020000000afb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afc0000003d000002d3000000c900fffffffa000000000100000002fb000000100044006900730070006c0061007900730100000000000002ae0000015600fffffffb0000000c00430061006d0065007200610000000000ffffffff0000006900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d006100670065000000010c000000a50000002800fffffffb0000000c00430061006d00650072006101000003160000013d0000002800ffffff000000010000010f000002f4fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d000002f4000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004420000003efc0100000002fb0000000800540069006d00650100000000000004420000000000000000fb0000000800540069006d00650100000000000004500000000000000000000004ad0000041600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Tool Properties:

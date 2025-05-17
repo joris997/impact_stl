@@ -22,7 +22,7 @@ def generate_launch_description():
             name='pop_mpc',
             output='screen',
             emulate_tty=True,
-            parameters=[{'x0':0.5, 'y0':-1.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
+            parameters=[{'x0':0.5, 'y0':0.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
                         {'scenario_name':'pong'},
                         {'object_ns':'/snap'}]
     ))
@@ -33,7 +33,7 @@ def generate_launch_description():
             name='crackle_mpc',
             output='screen',
             emulate_tty=True,
-            parameters=[{'x0':3.5, 'y0':-1.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
+            parameters=[{'x0':3.5, 'y0':0.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
                         {'scenario_name':'pong'},
                         {'object_ns':'/snap'}]
     ))
@@ -45,7 +45,7 @@ def generate_launch_description():
             name='snap_mpc',
             output='screen',
             emulate_tty=True,
-            parameters=[{'x0':1.25, 'y0':-0.75, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
+            parameters=[{'x0':1.25, 'y0':0.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
                         {'scenario_name':'pong'},
                         {'object_ns':'/snap'}]
         ))

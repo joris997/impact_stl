@@ -14,19 +14,26 @@ def generate_launch_description():
     topics_to_record = []
     for robot in robots:
         topics_to_record.append(f'/{robot}/fmu/out/vehicle_local_position')
-        topics_to_record.append(f'/{robot}/odom')
+        # topics_to_record.append(f'/{robot}/odom')
         # reference from the mpc computation
         topics_to_record.append(f'/{robot}/impact_stl/entire_path')
-        topics_to_record.append(f'/{robot}/impact_stl/reference_path')
-        topics_to_record.append(f'/{robot}/impact_stl/predicted_path')
+        # topics_to_record.append(f'/{robot}/impact_stl/reference_path')
+        # topics_to_record.append(f'/{robot}/impact_stl/predicted_path')
         # # impact detector
         # topics_to_record.append(f'/{robot}/impact_stl/impact')
         #gazebo ground truth topics
-        topics_to_record.append(f'/{robot}/fmu/out/vehicle_angular_velocity_gz')
-        topics_to_record.append(f'/{robot}/fmu/out/vehicle_attitude_gz')
-        topics_to_record.append(f'/{robot}/fmu/out/vehicle_local_position_gz')
+        # topics_to_record.append(f'/{robot}/fmu/out/vehicle_angular_velocity_gz')
+        # topics_to_record.append(f'/{robot}/fmu/out/vehicle_attitude_gz')
+        # topics_to_record.append(f'/{robot}/fmu/out/vehicle_local_position_gz')
         # control input topics
-        topics_to_record.append(f'/{robot}/fmu/in/vehicle_rates_setpoint')
+        # topics_to_record.append(f'/{robot}/fmu/in/vehicle_rates_setpoint')
+    
+    # record camera
+    topics_to_record += ['/regions/goal_region']
+    topics_to_record += ['/camera/camera/color/image_raw']
+
+    # record all topics
+    topics_to_record = ['-a']
 
     record_cmd = ['ros2','bag','record']+topics_to_record
 
@@ -40,6 +47,7 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True
         )) 
-    ld.add_action(ExecuteProcess(cmd=record_cmd))
+    # now recording on the mo-cap pc
+    # ld.add_action(ExecuteProcess(cmd=record_cmd))
 
     return ld   

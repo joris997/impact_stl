@@ -131,12 +131,13 @@ class SpacecraftRateMPC():
         ocp.minimize(cost_eq)
 
         # set solver method
-        # # IPOPT
-        # # IPOPT:
+        # IPOPT
         ipopt_opts = {
             'ipopt.print_level': 0,
-            'ipopt.warm_start_bound_push': 1e-4,
-            'ipopt.warm_start_bound_frac': 1e-4,
+            'ipopt.tol': 1e-2,
+            'ipopt.max_iter': 100,
+            'ipopt.warm_start_bound_push': 1e-2,
+            'ipopt.warm_start_bound_frac': 1e-2,
             'ipopt.warm_start_slack_bound_frac': 1e-4,
             'ipopt.warm_start_slack_bound_push': 1e-4,
             'ipopt.warm_start_mult_bound_push': 1e-4,
@@ -147,15 +148,16 @@ class SpacecraftRateMPC():
 
         # SQP:
         # qp_opts = {
-        #     'max_iter': 10,
+        #     # 'max_iter': 5,
         #     'error_on_fail': False,
-        #     'print_header': False,
-        #     'print_iter': False
+        #     'printLevel': "none",
+        #     # 'print_header': False,
+        #     # 'print_iter': False
         # }
         # sqp_opts = {
-        #     'max_iter': 100,
-        #     'qpsol': 'qrqp',
-        #     'convexify_margin': 1e-5,
+        #     'max_iter': 10,
+        #     'qpsol': 'qpoases',
+        #     'convexify_margin': 1e-4,
         #     'print_header': False,
         #     'print_time': False,
         #     'print_iteration': False,
@@ -257,7 +259,7 @@ class SpacecraftRateMPC():
 # import rclpy
 # from rclpy.clock import Clock
 # from rclpy.node import Node
-# from push_stl.helpers.qos_profiles import RELIABLE_QOS, NORMAL_QOS
+# from impact_stl.helpers.qos_profiles import RELIABLE_QOS, NORMAL_QOS
 # from px4_msgs.msg import VehicleLocalPosition
 # from my_msgs.msg import StampedBool
 # class ImpactDetector(Node):
@@ -277,8 +279,8 @@ class SpacecraftRateMPC():
 #                 'fmu/out/vehicle_local_position',
 #                 self.vehicle_local_position_callback,
 #                 NORMAL_QOS)
-#         self.publisher_impact = self.create_publisher(StampedBool, 'push_stl/impact_detected', RELIABLE_QOS)
-#         self.publisher_impact_direction = self.create_publisher(StampedBool, 'push_stl/impact_direction', RELIABLE_QOS)
+#         self.publisher_impact = self.create_publisher(StampedBool, 'impact_stl/impact_detected', RELIABLE_QOS)
+#         self.publisher_impact_direction = self.create_publisher(StampedBool, 'impact_stl/impact_direction', RELIABLE_QOS)
 #         self.vehicle_acceleration = np.array([0.0, 0.0, 0.0])
 #         self.vehicle_past_accelerations = np.zeros((3,))
 #         self.past_accel_x = np.zeros((3,))

@@ -100,16 +100,18 @@ def quant_MU_predicate(obj,mu,robot_vars,rho):
     mu.zs = obj.prog.addMVar(shape=(robot_vars['nbzs'],),vtype=gp.GRB.BINARY)
     try:
         for idx in range(robot_vars['nbzs']):
-            zss = obj.prog.addMVar(shape=(2,),vtype=gp.GRB.BINARY)
-            for face in range(mu.preds.nfaces):
-                # for the first and the last control point only
-                for cp in [0,-1]:
+            # a zs per control point
+            cps = [-1]
+            zss = obj.prog.addMVar(shape=(len(cps),),vtype=gp.GRB.BINARY)
+            for cp in cps:
+                for face in range(mu.preds.nfaces):
+                    # for each control point and each parallel bezier
                     ineqs = mu.preds.H @ robot_vars['rvar'][idx][:,cp]
                     c = -ineqs[face] + mu.preds.b[face] - rho
                     #! c should be greater than 0
                     obj.prog.addConstr(c >= -obj.bigM*(1-zss[cp]))
 
-            obj.prog.addConstr(mu.zs[idx] == gp.min_([z for z in zss]))
+            obj.prog.addConstr(mu.zs[idx] == gp.max_([z for z in zss]))
 
     except Exception as e:
         print(f"Error in MU: {e}")
@@ -156,9 +158,9 @@ def parse_time_any(obj,pred,I,robot_vars):
                                 name=f"conditional constraint {pred.get_string()} {idx} 1")
             
             # if obj.h_var[0,0,idx] <= pred.I[1] then b2 = 1
-            obj.prog.addConstr(robot_vars['hvar'][idx][0,0] <= I[1] + obj.bigM*(1-b2),
+            obj.prog.addConstr(robot_vars['hvar'][idx][0,-1] <= I[1] + obj.bigM*(1-b2),
                                 name=f"conditional constraint {pred.get_string()} {idx} 2")
-            obj.prog.addConstr(robot_vars['hvar'][idx][0,0] >= I[1] - obj.bigM*b2,
+            obj.prog.addConstr(robot_vars['hvar'][idx][0,-1] >= I[1] - obj.bigM*b2,
                                 name=f"conditional constraint {pred.get_string()} {idx} 2")
 
             # now if z_time[idx] == 1, the first and last control points are inside the time range

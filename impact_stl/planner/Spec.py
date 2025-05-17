@@ -117,7 +117,7 @@ class Spec():
         print(f"names: {self.names}")
 
 def spatial_specifications(world,specification):
-    if specification == "catch_throw":
+    if specification == "throw_and_catch":
         tf = 80
         world.spec = Spec(t0=0,tf=tf)
 
@@ -176,15 +176,15 @@ def spatial_specifications(world,specification):
         world.areas = [area1,obstacle1,obstacle2]
         world.obstacles = []
 
-    elif specification == "catch_throw_exp":
-        tf = 30
+    elif specification == "throw_and_catch_exp":
+        tf = 20
         world.spec = Spec(t0=0,tf=tf)
 
-        v_max = 0.2
+        v_max = 0.5
         robot1 = Robot(name="crackle",
                         x0=np.array([0.4,0]),
                         dx0=np.array([0,0]),
-                        xf=np.array([1.0,0]),
+                        xf=np.array([0.4,0]),
                         dxf=np.array([0,0]),nbz=3,
                         dq_lb=np.array([-v_max,-v_max]),
                         dq_ub=np.array([v_max,v_max]))
@@ -196,7 +196,7 @@ def spatial_specifications(world,specification):
                         dq_lb=np.array([-v_max,-v_max]),
                         dq_ub=np.array([v_max,v_max]))
         object1 = Object(name="snap",
-                        x0=np.array([1.2,0]),
+                        x0=np.array([1.5,0]),
                         dx0=np.array([0,0]),
                         xf=np.array([2.5,0]),
                         dxf=np.array([0,0]),
@@ -288,9 +288,9 @@ def spatial_specifications(world,specification):
         # Area's of interest
         world.areas = [area1,area2]
 
-    elif specification == "pong_stl":
+    elif specification == "pong":
         # STL
-        tf = 100
+        tf = 50
         # bottom left
         area1 = Area(x_min=np.array([1,-1]),x_max=np.array([1.5,-0.5]))
         mu1 = Pred(type="MU",preds=area1,io="in")
@@ -308,17 +308,17 @@ def spatial_specifications(world,specification):
         mu4 = Pred(type="MU",preds=area4,io="in")
         phi4 = Pred(type="F",I=[0,tf],preds=[mu4])
 
-        world.spec = Spec(t0=0,tf=100)
+        world.spec = Spec(t0=0,tf=tf)
         world.spec.add_pred(Pred(type="AND",preds=[phi1,phi2,phi3,phi4]),
                            name='snap')
 
-        robot1 = Robot(name="pop",
+        robot1 = Robot(name="crackle",
                        x0=np.array([0.5,-1]),
                        dx0=np.array([0,0]),
                        xf=np.array([0.5,1]),
                        dxf=np.array([0,0]),nbz=6)
         
-        robot2 = Robot(name="crackle",
+        robot2 = Robot(name="pop",
                        x0=np.array([3.5,-1]),
                        dx0=np.array([0,0]),
                        xf=np.array([3.5,1]),
@@ -342,8 +342,67 @@ def spatial_specifications(world,specification):
         world.areas = [area1,area2,area3,area4]
         world.obstacles = []
 
+    elif specification == "pingpong":
+        # STL
+        tf = 30
+        # left
+        area1 = Area(x_min=np.array([1.0,-0.25]),x_max=np.array([1.5,0.25]))
+        mu1 = Pred(type="MU",preds=area1,io="in")
+        phi1 = Pred(type="F",I=[4,5],preds=[mu1])
+        # right
+        area2 = Area(x_min=np.array([2.0,-0.25]),x_max=np.array([2.5,0.25]))
+        mu2 = Pred(type="MU",preds=area2,io="in")
+        phi2 = Pred(type="F",I=[9,10],preds=[mu2])
+        # left
+        mu3 = Pred(type="MU",preds=area1,io="in")
+        phi3 = Pred(type="F",I=[14,15],preds=[mu3])
+        # right
+        mu4 = Pred(type="MU",preds=area2,io="in")
+        phi4 = Pred(type="F",I=[19,20],preds=[mu4])
+        # left
+        mu5 = Pred(type="MU",preds=area1,io="in")
+        phi5 = Pred(type="F",I=[24,25],preds=[mu5])
+        # right
+        mu6 = Pred(type="MU",preds=area2,io="in")
+        phi6 = Pred(type="F",I=[29,30],preds=[mu6])
+
+        world.spec = Spec(t0=0,tf=tf)
+        world.spec.add_pred(Pred(type="AND",preds=[phi1,phi2,phi3,phi4,phi5,phi6]),
+                           name='snap')
+
+        robot1 = Robot(name="crackle",
+                       x0=np.array([0.5,0]),
+                       dx0=np.array([0,0]),
+                       xf=np.array([0.5,0]),
+                       dxf=np.array([0,0]),nbz=4)
+        
+        robot2 = Robot(name="pop",
+                       x0=np.array([3.5,0]),
+                       dx0=np.array([0,0]),
+                       xf=np.array([3.5,0]),
+                       dxf=np.array([0,0]),nbz=4)
+        
+        object1 = Object(name="snap",
+                         x0=np.array([1.25,0]),
+                         dx0=np.array([0,0]),
+                         xf=None,
+                         dxf=np.array([0,0]),nbz=7)
+
+        world.dim = 2
+        world.robots = [robot1,robot2]
+        world.objects = [object1]
+
+        # World bounding box
+        world.x_lb = np.array([0,-2])
+        world.x_ub = np.array([4,2])
+
+        # Area's of interest
+        world.areas = [area1,area2]
+        world.obstacles = []
+
+
 def impact_specifications(world,specification):
-    if specification == "catch_throw":
+    if specification == "throw_and_catch":
         tf = 80
         world.spec = Spec(t0=0,tf=tf)
 
@@ -403,7 +462,7 @@ def impact_specifications(world,specification):
         world.areas = [area1,obstacle1,obstacle2]
         world.obstacles = []
 
-    elif specification == "catch_throw_exp":
+    elif specification == "throw_and_catch_exp":
         tf = 30
         world.spec = Spec(t0=0,tf=tf)
 

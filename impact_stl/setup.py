@@ -20,17 +20,19 @@ setup(
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/throw_and_catch', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/obstacle_avoidance', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/throw_and_catch_exp', '*launch.[pxy][yma]*'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/pong_stl', '*launch.[pxy][yma]*'))),
+        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/pong', '*launch.[pxy][yma]*'))),
+        (os.path.join('share', package_name), glob(os.path.join('impact_stl/launch/pingpong', '*launch.[pxy][yma]*'))),
 
         # data files (csv of motion plan)
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch/SR', '*.csv'))),
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/obstacle_avoidance/SR', '*.csv'))),
         (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch_exp/SR', '*.csv'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/pong_stl/SR', '*.csv'))),
+        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/pong/SR', '*.csv'))),
+        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/pingpong/SR', '*.csv'))),
 
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch/IR', '*.csv'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/obstacle_avoidance/IR', '*.csv'))),
-        (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch_exp/IR', '*.csv'))),
+        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch/IR', '*.csv'))),
+        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/obstacle_avoidance/IR', '*.csv'))),
+        # (os.path.join('share', package_name), glob(os.path.join('impact_stl/planners/plans/throw_and_catch_exp/IR', '*.csv'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -59,6 +61,9 @@ setup(
                 'odom_to_vehicle_local_position = impact_stl.helpers.odom_to_vehicle_local_position:main',
                 'odom_to_vehicle_angular_velocity = impact_stl.helpers.odom_to_vehicle_angular_velocity:main',
                 'odom_to_vehicle_attitude = impact_stl.helpers.odom_to_vehicle_attitude:main',
+
+                # test
+                'test_replanner = impact_stl.tests.test_replanner:main',
         ],
     },
 )

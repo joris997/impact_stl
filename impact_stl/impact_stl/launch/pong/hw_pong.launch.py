@@ -58,14 +58,14 @@ def generate_launch_description():
             name='rviz2',
             arguments=['-d', [os.path.join(get_package_share_directory('impact_stl'), 'config.rviz')]]
     ))
-#     # Plotjuggler from the juggler_2.xml file (2 spacecrafts)
-#     ld.add_action(Node(
-#             package='plotjuggler',
-#             namespace='snap',
-#             executable='plotjuggler',
-#             name='plotjuggler',
-#             arguments=['-l', os.path.join(get_package_share_directory('impact_stl'), 'juggler_sitl_3.xml')]
-#     ))
+    # Plotjuggler from the juggler_2.xml file (2 spacecrafts)
+    ld.add_action(Node(
+            package='plotjuggler',
+            namespace='snap',
+            executable='plotjuggler',
+            name='plotjuggler',
+            arguments=['-l', os.path.join(get_package_share_directory('impact_stl'), 'juggler_sitl_3.xml')]
+    ))
 
     # Launch the gz to px4 converters that take the Odometry message
     # and fill the correct PX4 messages such that we only need to change
