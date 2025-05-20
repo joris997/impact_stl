@@ -115,7 +115,7 @@ class SpacecraftCleanMPC(Node):
             RELIABLE_QOS)
         
         # controller heuristics
-        self.post_impact_backup_duration = 0.75 # how long we turn the contoller off after an impact
+        self.post_impact_backup_duration = 0.50 # how long we turn the contoller off after an impact
         self.t_object_coming = np.inf           # time when the object is coming to our impact point
         self.has_impacted = False               # flag to indicate that we have impacted the object
 
@@ -389,9 +389,9 @@ class SpacecraftCleanMPC(Node):
         # self.plan = BezierPlan2NumpyArray(request.plan)
         self.plan = VerboseBezierPlan2NumpyArray(request.plan)
         # print some info
-        self.get_logger().info(f"Number of bezier segments: {len(self.plan['rvar'])}")
-        self.get_logger().info(f"Number of control points: {self.plan['rvar'][0].shape[1]}")
-        self.get_logger().info(f"Segment ids: {self.plan['ids']}")
+        # self.get_logger().info(f"Number of bezier segments: {len(self.plan['rvar'])}")
+        # self.get_logger().info(f"Number of control points: {self.plan['rvar'][0].shape[1]}")
+        # self.get_logger().info(f"Segment ids: {self.plan['ids']}")
         # create the entire path and publish it to rviz
         self.publish_plan()
 

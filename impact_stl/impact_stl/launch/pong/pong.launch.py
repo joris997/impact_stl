@@ -92,21 +92,21 @@ def generate_launch_description():
             namespace='snap',
             executable='impact_detector',
             name='snap_impact_detector',
-            parameters=[{'threshold': 0.7, 'gz': False}]
+            parameters=[{'threshold': 0.9, 'gz': False}]
         ))
         ld.add_action(Node(
             package='impact_stl',
             namespace='crackle',
             executable='impact_detector',
             name='crackle_impact_detector',
-            parameters=[{'threshold': 0.7, 'gz': False}]
+            parameters=[{'threshold': 0.9, 'gz': False}]
         ))
         ld.add_action(Node(
             package='impact_stl',
             namespace='pop',
             executable='impact_detector',
             name='pop_impact_detector',
-            parameters=[{'threshold': 0.7, 'gz': False}]
+            parameters=[{'threshold': 0.9, 'gz': False}]
         ))
 
     # Replanner

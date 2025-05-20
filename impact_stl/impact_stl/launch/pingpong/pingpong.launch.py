@@ -23,7 +23,7 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             parameters=[{'x0':0.5, 'y0':0.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
-                        {'scenario_name':'pong'},
+                        {'scenario_name':'pingpong'},
                         {'object_ns':'/snap'}]
     ))
     ld.add_action(Node(
@@ -34,7 +34,7 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             parameters=[{'x0':3.5, 'y0':0.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
-                        {'scenario_name':'pong'},
+                        {'scenario_name':'pingpong'},
                         {'object_ns':'/snap'}]
     ))
     if not SITL:
@@ -46,7 +46,7 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             parameters=[{'x0':1.25, 'y0':0.0, 'z0':0.0, 'vx0':0.0, 'vy0':0.0, 'vz0':0.0},
-                        {'scenario_name':'pong'},
+                        {'scenario_name':'pingpong'},
                         {'object_ns':'/snap'}]
         ))
 
@@ -58,7 +58,7 @@ def generate_launch_description():
         name='crackle_planner',
         # output='screen',
         emulate_tty=True,
-        parameters=[{'scenario_name':'pong'}]
+        parameters=[{'scenario_name':'pingpong'}]
     ))
     ld.add_action(Node(
         package='impact_stl',
@@ -67,7 +67,7 @@ def generate_launch_description():
         name='pop_planner',
         # output='screen',
         emulate_tty=True,
-        parameters=[{'scenario_name':'pong'}]
+        parameters=[{'scenario_name':'pingpong'}]
     ))
 
     # Impact detector
@@ -92,21 +92,22 @@ def generate_launch_description():
             namespace='snap',
             executable='impact_detector',
             name='snap_impact_detector',
-            parameters=[{'threshold': 0.7, 'gz': False}]
+            output='screen',
+            parameters=[{'threshold': 0.9, 'gz': False}]
         ))
         ld.add_action(Node(
             package='impact_stl',
             namespace='crackle',
             executable='impact_detector',
             name='crackle_impact_detector',
-            parameters=[{'threshold': 0.7, 'gz': False}]
+            parameters=[{'threshold': 0.9, 'gz': False}]
         ))
         ld.add_action(Node(
             package='impact_stl',
             namespace='pop',
             executable='impact_detector',
             name='pop_impact_detector',
-            parameters=[{'threshold': 0.7, 'gz': False}]
+            parameters=[{'threshold': 0.9, 'gz': False}]
         ))
 
     # Replanner
@@ -117,7 +118,7 @@ def generate_launch_description():
         name='crackle_replanner',
         output='screen',
         parameters=[{'object_ns':'/snap'},
-                    {'scenario_name':'pong'},
+                    {'scenario_name':'pingpong'},
                     {'gz': False}]
     ))
     ld.add_action(Node(
@@ -127,32 +128,18 @@ def generate_launch_description():
         name='pop_replanner',
         output='screen',
         parameters=[{'object_ns':'/snap'},
-                    {'scenario_name':'pong'},
+                    {'scenario_name':'pingpong'},
                     {'gz': False}]
     ))
 
     # VISUALIZATION
-    goal_region = ExecuteProcess(
-            cmd=[
-                'ros2 topic pub --once --qos-reliability reliable /regions/goal_region \
-                    visualization_msgs/msg/Marker \
-                    "{header: {frame_id: \'world\', stamp: {sec: 0, nanosec: 0}},\
-                    ns: \'rectangles\', id: 1, type: 1, action: 0,\
-                    pose: {position: {x: 2.5, y: 0.75, z: 0.0},\
-                    orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},\
-                    scale: {x: 0.5, y: 0.5, z: 0.01},\
-                    color: {r: 0.0, g: 1.0, b: 0.0, a: 0.4},\
-                    lifetime: {sec: 0, nanosec: 0}, frame_locked: false}"'
-            ],shell=True)
-    ld.add_action(goal_region)
-
     int_region = ExecuteProcess(
             cmd=[
                 'ros2 topic pub --once --qos-reliability reliable /regions/roi_region_1 \
                     visualization_msgs/msg/Marker \
                     "{header: {frame_id: \'world\', stamp: {sec: 0, nanosec: 0}},\
                     ns: \'rectangles\', id: 1, type: 1, action: 0,\
-                    pose: {position: {x: 1.25, y: -0.75, z: 0.0},\
+                    pose: {position: {x: 1.25, y: 0.0, z: 0.0},\
                     orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},\
                     scale: {x: 0.5, y: 0.5, z: 0.01},\
                     color: {r: 0.0, g: 0.0, b: 1.0, a: 0.4},\
@@ -166,26 +153,12 @@ def generate_launch_description():
                     visualization_msgs/msg/Marker \
                     "{header: {frame_id: \'world\', stamp: {sec: 0, nanosec: 0}},\
                     ns: \'rectangles\', id: 1, type: 1, action: 0,\
-                    pose: {position: {x: 2.5, y: -0.75, z: 0.0},\
+                    pose: {position: {x: 2.75, y: 0.0, z: 0.0},\
                     orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},\
                     scale: {x: 0.5, y: 0.5, z: 0.01},\
                     color: {r: 0.0, g: 0.0, b: 1.0, a: 0.4},\
                     lifetime: {sec: 0, nanosec: 0}, frame_locked: false}"'
             ],shell=True)
-    ld.add_action(int_region)
-
-    int_region = ExecuteProcess(
-            cmd=[
-                'ros2 topic pub --once --qos-reliability reliable /regions/roi_region_3 \
-                    visualization_msgs/msg/Marker \
-                    "{header: {frame_id: \'world\', stamp: {sec: 0, nanosec: 0}},\
-                    ns: \'rectangles\', id: 1, type: 1, action: 0,\
-                    pose: {position: {x: 1.25, y: 0.25, z: 0.0},\
-                    orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},\
-                    scale: {x: 0.5, y: 0.5, z: 0.01},\
-                    color: {r: 0.0, g: 0.0, b: 1.0, a: 0.4},\
-                    lifetime: {sec: 0, nanosec: 0}, frame_locked: false}"'
-            ],shell=True)
-    ld.add_action(int_region)    
+    ld.add_action(int_region)   
    
     return ld

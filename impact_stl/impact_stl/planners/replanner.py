@@ -119,7 +119,7 @@ class RePlanner(Node):
         self.object_local_velocity = np.array([0.0, 0.0, 0.0])
         # keep track of a stack of velocities to interpolate
         #TODO: if this is linked to an EKF we should use that, but the EKF needs to consider impacts
-        stack_size = 10 # was 30
+        stack_size = 15 # was 30
         self.planner_time = 0.
         self.object_local_velocity_stack = np.zeros((3,stack_size))
         self.object_local_position_stack = np.zeros((3,stack_size))
@@ -130,7 +130,7 @@ class RePlanner(Node):
         self.robot_local_position = np.array([0.0, 0.0, 0.0])
         self.robot_local_velocity = np.array([0.0, 0.0, 0.0])
 
-        self.Ncalls = 1
+        self.Ncalls = 0
         self.Ncallbacks = 0
         self.verbose = True
 
@@ -170,10 +170,6 @@ class RePlanner(Node):
         self.object_local_velocity[2] = -msg.vz
         self.object_local_velocity_stack[:,0:-1] = self.object_local_velocity_stack[:,1:]
         self.object_local_velocity_stack[:,-1] = self.object_local_velocity
-
-        # self.Ncallbacks += 1
-        # if self.Ncallbacks % 100 == 0:
-        #     self.get_logger().info(f"AAAAAAAAAAAA{self.Ncallbacks}")
 
     def robot_local_position_callback(self, msg):
         self.robot_local_position[0] = msg.x
@@ -220,15 +216,9 @@ class RePlanner(Node):
         dxObject0 = np.mean(dxs_from_pos,axis=1)
         self.get_logger().info(f"dxObject0 from pos: {dxObject0}") if self.verbose else None
         dxObjectI = dxObject0[0:2] # constant velocity assumption
-        #! change
-        dxObjectI = np.array([dxObjectI[0],dxObjectI[1]])   # SITL
-        # dxObjectI = np.array([-dxObjectI[1],dxObjectI[0]])  # HW
-        
+
         # then we obtain the position which is the current position plus the velocity times the time
         xObject0 = self.object_local_position[0:2]
-        #! change
-        xObject0 = np.array([xObject0[0],xObject0[1]])    # SITL
-        # xObject0 = np.array([-xObject0[1],xObject0[0]]) # HW
         self.get_logger().info(f"xObject0: {xObject0}") if self.verbose else None
         xObjectI = xObject0 + (tI - self.planner_time) * dxObjectI
 
@@ -255,9 +245,6 @@ class RePlanner(Node):
             post_idx_obj = len(self.orvars)-1
         self.get_logger().info(f"post_idx_obj: {post_idx_obj}") if self.verbose else None
         xObjectI_next = self.orvars[post_idx_obj][0:2,-1]
-        #! don't change between sitl and hw
-        xObjectI_next = xObjectI_next # SITL
-        # xObjectI_next = np.array([-xObjectI_next[1],xObjectI_next[0]]) # HW
         self.get_logger().info(f"xObjectI_next: {xObjectI_next}") if self.verbose else None
         t_next = self.ohvars[post_idx_obj][0,-1]
         self.get_logger().info(f"t_next: {t_next}") if self.verbose else None
@@ -478,7 +465,7 @@ class RePlanner(Node):
                     scenario_name=self.scenario_name,
                     path=replans_path)
 
-        self.Ncalls += 1
+        # self.Ncalls += 1
         self.get_logger().info(f"The whole ordeal took {time.time()-t_start} seconds")
 
 
@@ -486,7 +473,7 @@ class RePlanner(Node):
         t_start = time.time()
         self.get_logger().info("Creating CVXPY replanner problem")
         
-        n_cp = 5
+        n_cp = 4
         rvars = [cp.Variable((2, n_cp)) for _ in range(2)]
         hvars = [cp.Variable((1, n_cp)) for _ in range(2)]
         
@@ -504,12 +491,24 @@ class RePlanner(Node):
                             self.drvars[pre_idx][1,-1]/self.dhvars[pre_idx][0,-1]])
         theta_init = np.arctan2(dxI_init[1], dxI_init[0]) + np.pi
 
-        dxI = -(1/0.8)*(dxObjectI - dxObjectI_post)
-        theta_close = np.arctan2(dxI[1], dxI[0]) + np.pi
-        xI = xObjectI + 0.40*np.array([np.cos(theta_close), np.sin(theta_close)])
-        xI_post = xI
-        dxI_post = dxObjectI
+        xI, dxI, xI_post, dxI_post = solve_two_body_impact(xObjectI,dxObjectI,dxObjectI_post,
+                                                           dx_init_guess=dxI_init,
+                                                           theta_init_guess=theta_init,
+                                                           logger=self.get_logger())
 
+        # Because the bottom plate on snap is not properly centered with the mid and top plates
+        # so we need to add to correct this for hardware. In SITL, we don't need to do this!
+        # frac = 1/0.9 if self.robot_name == "/crackle" else 1/0.2
+        # if self.robot_name == "/crackle" and self.Ncalls > 0:
+        #     frac = 1/0.2
+        # dxI = frac*(dxObjectI_post - dxObjectI)
+        # theta_close = np.arctan2(dxI[1], dxI[0]) + np.pi
+        # xI = xObjectI + 0.40*np.array([np.cos(theta_close), np.sin(theta_close)])
+        # xI_post = xI
+        # dxI_post = dxObjectI
+
+
+        self.get_logger().info(f"xI: {xI}, dxI: {dxI}, xI_post: {xI_post}, dxI_post: {dxI_post}") if self.verbose else None
         constraints = []
 
         # Derivative control points
@@ -521,7 +520,7 @@ class RePlanner(Node):
 
             ddrvars_r, ddrv_constraints_r = get_derivative_control_points_cvxpy(r, der_order=2)
             ddrvars.append(ddrvars_r)
-            constraints += drv_constraints_r
+            constraints += ddrv_constraints_r
         dhvars, ddhvars = [], []
         for h in hvars:
             dhvars_h, dhv_constraints_h = get_derivative_control_points_cvxpy(h)
@@ -535,7 +534,7 @@ class RePlanner(Node):
         # Ensure increasing time
         for dh in dhvars:
             for i in range(dh.shape[1]):
-                constraints.append(dh[0, i] >= 1e-1)
+                constraints.append(dh[0, i] >= 1e-2)
 
         # Continuity constraints
         constraints += [
@@ -628,6 +627,7 @@ class RePlanner(Node):
                     scenario_name=self.scenario_name,
                     path=replans_path)
         self.Ncalls += 1
+        # plot_rvars_hvars(self.re_rvars, self.re_hvars, "/home/none/space_ws/replans", f"{self.robot_name[1:]}_pre.png")
         self.get_logger().info(f"The whole ordeal took {time.time()-t_start:.3f}s")
 
 

@@ -44,7 +44,7 @@ def vector2PoseMsg(frame_id, position, attitude):
 def BezierCurve2NumpyArray(bezier_curve):
     # BezierCurve consists of an array of points. point.x, point.y, and point.z are the 
     # control point. the array gives all the control points. Pack this in a numpy array
-    print(f"bezier_curve {bezier_curve}")
+    # print(f"bezier_curve {bezier_curve}")
     ncp = len(bezier_curve.x_cp)
     # hvar is a Bezier curve but only has values in x_cp, so we need to check if the z_cp is empty
     if len(bezier_curve.y_cp) != ncp:

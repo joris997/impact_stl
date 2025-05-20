@@ -15,7 +15,7 @@ class ImpactDetector(Node):
     def __init__(self):
         super().__init__('impact_detector')
         self.threshold = self.declare_parameter('threshold', 1.0).value # 1.0 for sim, 3.0 for hw
-        self.gz = self.declare_parameter('gz', True).value
+        self.gz = self.declare_parameter('gz', False).value
 
         if self.gz:
             self.local_position_sub = self.create_subscription(
@@ -32,7 +32,7 @@ class ImpactDetector(Node):
         
         self.publisher_impact = self.create_publisher(StampedBool, 'impact_stl/impact_detected', RELIABLE_QOS)
 
-        self.vehicle_acceleration = np.array([0.0, 0.0, 0.0])
+        self.vehicle_acceleration = np.array([0.0, 0.0])
         self.vehicle_past_accelerations = np.zeros((1,))
 
         # get the current time
@@ -46,7 +46,6 @@ class ImpactDetector(Node):
         # TODO: handle NED->ENU transformation
         self.vehicle_acceleration[0] = msg.ax
         self.vehicle_acceleration[1] = -msg.ay
-        self.vehicle_acceleration[2] = -msg.az
 
         self.vehicle_past_accelerations[:-1] = self.vehicle_past_accelerations[1:]
         self.vehicle_past_accelerations[-1] = np.linalg.norm(self.vehicle_acceleration)
@@ -57,7 +56,6 @@ class ImpactDetector(Node):
             msg.timestamp = int(Clock().now().nanoseconds / 1000)
             msg.data = True
             self.publisher_impact.publish(msg)
-            self.get_logger().info('Impact message published')
 
 
 def main(args=None):

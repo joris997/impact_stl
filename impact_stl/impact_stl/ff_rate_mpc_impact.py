@@ -116,9 +116,9 @@ class SpacecraftImpactMPC(Node):
             RELIABLE_QOS)
 
         # controller heuristics
-        self.post_impact_backup_duration = 1.0  # how long we turn the contoller off after an impact
+        self.post_impact_backup_duration = 1.5  # how long we turn the contoller off after an impact
         self.t_object_coming = np.inf           # time when the object is coming to our impact point
-        self.object_coming_wait = 1.0           # how long we wait with replanning after the object is coming
+        self.object_coming_wait = 2.0           # how long we wait with replanning after the object is coming
 
         # for long specs, object_coming_wait: 3, stacksize can be larger: more precise
         # for short specs, object_coming_wait: 1, stacksize has to be smaller
@@ -361,7 +361,8 @@ class SpacecraftImpactMPC(Node):
                                       1.0, 0.0, 0.0, 0.0]).reshape(10,1)
             
             if t <= tI and tI <= tf-self.mpc.dt:
-                self.get_logger().info("\nImpact in horizon!")
+                # self.get_logger().info("\nImpact in horizon!")
+                # self.get_logger().info(f"t: {t}, tI: {tI}, tf: {tf}")
                 # now insert setpoint_pre in the first index for which tI < t in times
                 insert_idx = next((i for i, t in enumerate(times) if tI < t), len(times)-1)
                 # print(f"insert_idx: {insert_idx}")
@@ -386,7 +387,7 @@ class SpacecraftImpactMPC(Node):
             # and increase the weight on the velocity cost
             if tI <= t-2*self.mpc.dt and t - tI <= self.post_impact_backup_duration \
                 and not self.impacted:
-                print("Impact not yet occured, post-impact backup plan")
+                # print("Impact not yet occured, post-impact backup plan")
                 # setpoints is plan_pre repeated N+1 times
                 setpoints = [setpoint_pre for _ in range(self.mpc.N+1)]
                 Q = np.diag([0e0, 0e0, 0e0, 8e0, 8e0, 8e0, 8e3])
@@ -477,11 +478,11 @@ class SpacecraftImpactMPC(Node):
         # if we just impacted the object, turn off the controller to prevent further pushing
         dt_post_impact = (Clock().now().nanoseconds / 1000 - self.impact_time)/1e6
         if self.impacted and dt_post_impact < self.post_impact_backup_duration:
-            self.get_logger().info('Impact detected, stopping controller')
+            # self.get_logger().info('Impact detected, stopping controller')
             # self.replanned = False
             u_pred = np.zeros_like(u_pred)
         if self.impacted and dt_post_impact >= self.post_impact_backup_duration:
-            self.get_logger().info('Impact passed, starting controller again!')
+            # self.get_logger().info('Impact passed, starting controller again!')
             self.impact_time = 0
             self.impacted = False
             self.replanned = False
@@ -520,9 +521,9 @@ class SpacecraftImpactMPC(Node):
         # self.plan = BezierPlan2NumpyArray(request.plan)
         self.plan = VerboseBezierPlan2NumpyArray(request.plan)
         # print some info
-        self.get_logger().info(f"Number of bezier segments: {len(self.plan['rvar'])}")
-        self.get_logger().info(f"Number of control points: {self.plan['rvar'][0].shape[1]}")
-        self.get_logger().info(f"Segment ids: {self.plan['ids']}")
+        # self.get_logger().info(f"Number of bezier segments: {len(self.plan['rvar'])}")
+        # self.get_logger().info(f"Number of control points: {self.plan['rvar'][0].shape[1]}")
+        # self.get_logger().info(f"Segment ids: {self.plan['ids']}")
         # create the entire path and publish it to rviz
         try:
             N = 100

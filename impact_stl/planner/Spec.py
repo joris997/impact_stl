@@ -290,7 +290,7 @@ def spatial_specifications(world,specification):
 
     elif specification == "pong":
         # STL
-        tf = 50
+        tf = 60
         # bottom left
         area1 = Area(x_min=np.array([1,-1]),x_max=np.array([1.5,-0.5]))
         mu1 = Pred(type="MU",preds=area1,io="in")
@@ -306,7 +306,7 @@ def spatial_specifications(world,specification):
         # top right
         area4 = Area(x_min=np.array([2.25,0.5]),x_max=np.array([2.75,1.0]))
         mu4 = Pred(type="MU",preds=area4,io="in")
-        phi4 = Pred(type="F",I=[0,tf],preds=[mu4])
+        phi4 = Pred(type="F",I=[50,tf],preds=[mu4])
 
         world.spec = Spec(t0=0,tf=tf)
         world.spec.add_pred(Pred(type="AND",preds=[phi1,phi2,phi3,phi4]),
@@ -316,13 +316,13 @@ def spatial_specifications(world,specification):
                        x0=np.array([0.5,-1]),
                        dx0=np.array([0,0]),
                        xf=np.array([0.5,1]),
-                       dxf=np.array([0,0]),nbz=6)
+                       dxf=np.array([0,0]),nbz=4)
         
         robot2 = Robot(name="pop",
                        x0=np.array([3.5,-1]),
                        dx0=np.array([0,0]),
                        xf=np.array([3.5,1]),
-                       dxf=np.array([0,0]),nbz=6)
+                       dxf=np.array([0,0]),nbz=3)
         
         object1 = Object(name="snap",
                          x0=np.array([1.25,-0.75]),
@@ -344,30 +344,32 @@ def spatial_specifications(world,specification):
 
     elif specification == "pingpong":
         # STL
-        tf = 30
+        tf = 60
+        frac = tf/30
         # left
         area1 = Area(x_min=np.array([1.0,-0.25]),x_max=np.array([1.5,0.25]))
         mu1 = Pred(type="MU",preds=area1,io="in")
-        phi1 = Pred(type="F",I=[4,5],preds=[mu1])
+        phi1 = Pred(type="F",I=[frac*4,frac*5],preds=[mu1])
         # right
-        area2 = Area(x_min=np.array([2.0,-0.25]),x_max=np.array([2.5,0.25]))
+        area2 = Area(x_min=np.array([2.5,-0.25]),x_max=np.array([3.0,0.25]))
         mu2 = Pred(type="MU",preds=area2,io="in")
-        phi2 = Pred(type="F",I=[9,10],preds=[mu2])
+        phi2 = Pred(type="F",I=[frac*9,frac*10],preds=[mu2])
         # left
-        mu3 = Pred(type="MU",preds=area1,io="in")
-        phi3 = Pred(type="F",I=[14,15],preds=[mu3])
+        mu3 = Pred(type="MU",preds=area2,io="in")
+        phi3 = Pred(type="F",I=[frac*14,frac*15],preds=[mu3])
         # right
         mu4 = Pred(type="MU",preds=area2,io="in")
-        phi4 = Pred(type="F",I=[19,20],preds=[mu4])
+        phi4 = Pred(type="F",I=[frac*19,frac*20],preds=[mu4])
         # left
         mu5 = Pred(type="MU",preds=area1,io="in")
-        phi5 = Pred(type="F",I=[24,25],preds=[mu5])
-        # right
-        mu6 = Pred(type="MU",preds=area2,io="in")
-        phi6 = Pred(type="F",I=[29,30],preds=[mu6])
+        phi5 = Pred(type="F",I=[frac*24,frac*25],preds=[mu5])
+        # center
+        area3 = Area(x_min=np.array([1.75,-0.25]),x_max=np.array([2.25,0.25]))
+        mu6 = Pred(type="MU",preds=area3,io="in")
+        phi6 = Pred(type="F",I=[tf-1,tf],preds=[mu6])
 
         world.spec = Spec(t0=0,tf=tf)
-        world.spec.add_pred(Pred(type="AND",preds=[phi1,phi2,phi3,phi4,phi5,phi6]),
+        world.spec.add_pred(Pred(type="AND",preds=[phi1,phi2,phi3,phi4,phi6]),
                            name='snap')
 
         robot1 = Robot(name="crackle",
@@ -380,7 +382,7 @@ def spatial_specifications(world,specification):
                        x0=np.array([3.5,0]),
                        dx0=np.array([0,0]),
                        xf=np.array([3.5,0]),
-                       dxf=np.array([0,0]),nbz=4)
+                       dxf=np.array([0,0]),nbz=6)
         
         object1 = Object(name="snap",
                          x0=np.array([1.25,0]),

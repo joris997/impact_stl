@@ -126,6 +126,10 @@ class SR_Impact_STL:
                 for bz in range(self.robots_nbzs[r]):
                     for cp in range(self.robots_ncp[r]):
                         self.prog.addConstr(self.robots_rvar[r][bz][0,cp] <= 2, name=f"crackle_x_{bz}_{cp}")
+
+                    if bz == 1:
+                        self.prog.addConstr(self.robots_rvar[r][bz][0,-1] == 0.5)
+                        self.prog.addConstr(self.robots_rvar[r][bz][1,-1] == 0)
             if self.robots[r].name == "pop":
                 # constrain all x points to be greater than 2
                 for bz in range(self.robots_nbzs[r]):
