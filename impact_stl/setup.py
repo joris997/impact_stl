@@ -40,7 +40,7 @@ setup(
     maintainer_email='jorisv@kth.se',
     description='TODO: Package description',
     license='TODO: License declaration',
-    tests_require=['pytest'],
+    # tests_require=['pytest'],
     entry_points={
         'console_scripts': [
                 # planning and missions

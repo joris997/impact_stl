@@ -78,7 +78,6 @@ In the `impact_stl` directory, run the following command to start the simulation
 If you have access to the ATMOS platform, you can also run the code on the platforms. The only difference is that you need to launch the `hw_obstacle_avoidance.launch.py` file instead of the `sitl_obstacle_avoidance.launch.py` file (and you can skip micro-ros as this is run on the robots).
 
 Some things to note:
-- In the replanner, the frames need to be manually changed for hardware. You can `ctrl+f` for `#!` to find the lines that need to be changed.
 - You might need to change the restitution coefficient in the planner and replaner to match the hardware. We recently changed the robot's bumpers, so I will update these values soon.
 
 ![hippo](media/pong_4.gif)
@@ -91,6 +90,6 @@ If you found this code useful, please consider citing our paper:
   title={Collaborative Object Transportation in Space via Impact Interactions},
   author={Verhagen, Joris and Tumova, Jana},
   journal={arXiv preprint arXiv:2504.18667},
-  year={2023}
+  year={2025}
 }
 ```

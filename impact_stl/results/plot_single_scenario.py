@@ -35,10 +35,15 @@ robots = ["snap","crackle","pop"]
 # csv_path = "/home/px4space/space_ws/rosbags/lab_test_2/rosbag2_plotjugger.csv"
 
 # csv_path = "/home/px4space/space_ws/rosbags/pingpong/rosbag2_2025_01_30-18_47_57/rosbag2_plotjuggler.csv"
-csv_path = "/home/px4space/space_ws/rosbags/pingpong/rosbag2_2025_01_30-19_06_41/rosbag2_plotjuggler.csv"
+# csv_path = "/home/px4space/space_ws/rosbags/pingpong/rosbag2_2025_01_30-19_06_41/rosbag2_plotjuggler.csv"
 # csv_path = "/home/px4space/space_ws/rosbags/pingpong/rosbag2_2025_01_30-19_23_11/rosbag2_plotjuggler.csv"
 
-csv_path = "/home/px4space/space_ws/rosbags/obstacle_avoidance/worst_case/rosbag2_plotjuggler.csv"
+# csv_path = "/home/px4space/space_ws/rosbags/obstacle_avoidance/worst_case/rosbag2_plotjuggler.csv"
+
+# PATHS FOR RSS BAGS
+# csv_path = "/home/none/Downloads/rosbags/rss_bags/rosbag2_2025_05_19-19_57_32/rosbag2_plotjuggler.csv"
+# csv_path = "/home/none/Downloads/rosbags/rss_bags/rosbag2_2025_05_19-20_07_59/rosbag2_plotjuggler.csv"
+csv_path = "/home/none/Downloads/rosbags/rss_bags/rosbag2_2025_05_19-21_27_50/rosbag2_plotjuggler.csv"
 csv2dict = {}
 for robot in robots:
     csv2dict[robot] = CSV2Dict(csv_path, name=robot, tmax=60)
@@ -94,7 +99,7 @@ for robot in robots:
     with suppress(KeyError): data_mpc_ref = csv2dict[robot].get_mpc_reference_data()
     data_local_pos = csv2dict[robot].get_local_position_data()
 
-    with suppress(KeyError): ax1.plot(data_mpc_ref['x'], data_mpc_ref['y'], color=color, ls='--')
+    # with suppress(KeyError): ax1.plot(data_mpc_ref['x'], data_mpc_ref['y'], color=color, ls='--')
     ax1.plot(data_local_pos['x'], [-y for y in data_local_pos['y']], color=color, ls=ls, label=fr"${robot}$")
     ax1.set_xlabel(r"x position [m]")
     ax1.set_ylabel(r"y position [m]")
@@ -135,6 +140,6 @@ for robot in robots:
 
     fig.tight_layout()
 
-plt.savefig("/home/px4space/space_ws/src/impact_stl/impact_stl/results/plot.png")
-plt.savefig("/home/px4space/space_ws/src/impact_stl/impact_stl/results/plot.svg")
+# plt.savefig("/home/none/space_ws/src/impact_stl/impact_stl/results/plot.png")
+plt.savefig("/home/none/space_ws/src/impact_stl/impact_stl/results/plot.svg")
 # plt.show()

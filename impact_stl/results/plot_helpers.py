@@ -4,10 +4,11 @@ from scipy.spatial.transform import Rotation
 
 import sys
 
-sys.path.append("/home/px4space/space_ws/src/impact_stl/impact_stl/planner")
+sys.path.append("/home/none/space_ws/src/impact_stl/impact_stl/planner")
 from utilities.beziers import value_bezier, eval_t
 from utilities.read_write_plan import csv_to_zonotopes, csv_to_plan
 from utilities.beziers import get_derivative_control_points_gurobi
+
 
 def interpolate_bezier(plan, t):
     idx, s = eval_t(plan['hvar'], t)
