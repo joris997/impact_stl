@@ -82,6 +82,11 @@ Some things to note:
 
 ![hippo](media/pong_4.gif)
 
+## Camera
+Install the intel realsense package
+`sudo apt install ros-humble-librealsense2*`
+and start the camera (when connected to your PC via USB) with `ros2 launch realsense2_camera rs_launch.py publish_tf:=true`
+
 # Citation
 If you found this code useful, please consider citing our paper:
 
@@ -89,7 +94,7 @@ If you found this code useful, please consider citing our paper:
 @article{verhagen2025collaborative,
   title={Collaborative Object Transportation in Space via Impact Interactions},
   author={Verhagen, Joris and Tumova, Jana},
-  journal={arXiv preprint arXiv:2504.18667},
+  journal={Robotics: Science and Systems},
   year={2025}
 }
 ```
