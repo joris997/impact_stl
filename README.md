@@ -85,6 +85,7 @@ Some things to note:
 ## Camera
 Install the intel realsense package
 `sudo apt install ros-humble-librealsense2*`
+`sudo apt install ros-humble-realsense2-*`
 and start the camera (when connected to your PC via USB) with `ros2 launch realsense2_camera rs_launch.py publish_tf:=true`
 
 # Citation
